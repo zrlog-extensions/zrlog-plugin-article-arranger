@@ -74,6 +74,6 @@ ${styleGlobal}
     </div>
     <div class="arranger-article">
         <h2 class="arranger-title">${title!''}</h2>
-        <div class="arranger-content">${content!''}</div>
+        <div class="arranger-content markdown-body">${content!''}</div>
     </div>
 </div>
