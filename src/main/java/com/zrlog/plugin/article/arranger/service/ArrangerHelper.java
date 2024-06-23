@@ -86,7 +86,7 @@ public class ArrangerHelper {
         }
         if (Objects.isNull(groups) || groups.isEmpty()) {
             List<ArrangeOutlineVO> items = new ArrayList<>();
-            articleInfos.forEach(e -> {
+            articleInfos.reversed().forEach(e -> {
                 ArrangeOutlineVO vo = new ArrangeOutlineVO();
                 vo.setUrl(RunConstants.runType == RunType.DEV ? e.getAlias() + (staticHtml ? ".html" :"") : e.getUrl());
                 vo.setTitle(e.getTitle());
