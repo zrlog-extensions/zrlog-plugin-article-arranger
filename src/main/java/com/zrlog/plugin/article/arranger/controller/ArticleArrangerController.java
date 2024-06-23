@@ -3,6 +3,7 @@ package com.zrlog.plugin.article.arranger.controller;
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.RunConstants;
+import com.zrlog.plugin.article.arranger.service.ArrangerHelper;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
 import com.zrlog.plugin.article.arranger.vo.ArticleInfo;
 import com.zrlog.plugin.common.IdUtil;
@@ -54,82 +55,9 @@ public class ArticleArrangerController {
         keyMap.put("key", "styleGlobal,groups");
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
-            Map<String, Object> data = new HashMap<>();
             String realUri = requestInfo.getUri().replace(".action","").replace(".html","");
-            PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
-            List<ArticleInfo> articleInfos;
-            HttpClient httpClient = HttpClient.newBuilder().build();
-            try {
-                HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(publicInfo.getApiHomeUrl() + "/api/article?size=50000")).build();
-                HttpResponse<byte[]> send;
-                send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
-                Map<String, Object> info = new Gson().fromJson(new String(send.body()), Map.class);
-                List<Map<String,Object>> rows = (List<Map<String,Object>>) ((Map<String,Object>) info.get("data")).get("rows");
-                articleInfos= rows.stream().map(e -> {
-                    String renderPluginName = (String) e.get("arrange_plugin");
-                    if(Objects.isNull(renderPluginName)){
-                        return null;
-                    }
-                    if(!Objects.equals(renderPluginName,session.getPlugin().getShortName())){
-                        return null;
-                    }
-
-                    ArticleInfo articleInfo = new ArticleInfo();
-                    articleInfo.setTitle((String) e.get("title"));
-                    articleInfo.setUrl((String) e.get("url"));
-                    articleInfo.setAlias((String) e.get("alias"));
-                    articleInfo.setTypeAlias((String)e.get("typeAlias"));
-                    return articleInfo;
-                }).filter(Objects::nonNull).collect(Collectors.toList());
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            String logId = null;
-            if(requestInfo.getUri().startsWith("/sort")){
-                articleInfos = articleInfos.stream().filter(e -> realUri.contains(e.getTypeAlias())).collect(Collectors.toList());
-                if(!articleInfos.isEmpty()){
-                    logId = articleInfos.get(0).getAlias();
-                }
-
-            } else {
-                logId = realUri.replace("/","");
-            }
-            if(Objects.nonNull(logId)) {
-                HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(publicInfo.getApiHomeUrl() + "/api/article/detail?id=" + logId)).build();
-                HttpResponse<byte[]> send;
-                try {
-                    send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
-                    Map<String, Object> info = new Gson().fromJson(new String(send.body()), Map.class);
-                    Map<String, Object> log = ((Map<String, Object>) info.get("data"));
-                    if(Objects.nonNull(log)) {
-                        articleInfos = articleInfos.stream().filter(e -> {
-                            return Objects.equals(e.getTypeAlias(), log.get("typeAlias"));
-                        }).collect(Collectors.toList());
-                        data.put("title", log.get("title"));
-                        data.put("content", log.get("content"));
-                    }else {
-                        data.put("title", "");
-                        data.put("content", "");
-                    }
-                } catch (IOException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }else {
-                data.put("title", "");
-                data.put("content","");
-            }
-            if (Objects.isNull(map.get("groups"))) {
-                List<ArrangeOutlineVO> items = new ArrayList<>();
-                boolean staticHtml = requestInfo.getUri().endsWith(".html");
-                articleInfos.forEach(e -> {
-                    ArrangeOutlineVO vo = new ArrangeOutlineVO();
-                    vo.setUrl(RunConstants.runType == RunType.DEV ? e.getAlias() + (staticHtml ? ".html" :"") : e.getUrl());
-                    vo.setTitle(e.getTitle());
-                    vo.setActive(e.getAlias().replace(".html","").equals(realUri.replace("/","")));
-                    items.add(vo);
-                });
-                data.put("items", items);
-            }
+            boolean staticHtml = requestInfo.getUri().endsWith(".html");
+            Map<String,Object> data = ArrangerHelper.getWidgetData(session,realUri,staticHtml,new ArrayList<>());
             data.put("styleGlobal",Objects.requireNonNullElse(map.get("styleGlobal"),""));
             session.responseHtml("/templates/widget.ftl",data, requestPacket.getMethodStr(), requestPacket.getMsgId());
         });
