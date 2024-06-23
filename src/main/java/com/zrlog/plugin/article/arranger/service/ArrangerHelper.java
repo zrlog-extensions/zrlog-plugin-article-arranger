@@ -51,6 +51,7 @@ public class ArrangerHelper {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+        articleInfos = articleInfos.reversed();
         String logId = null;
         if(uri.contains("sort/")){
             articleInfos = articleInfos.stream().filter(e -> uri.contains(e.getTypeAlias())).collect(Collectors.toList());
@@ -86,11 +87,17 @@ public class ArrangerHelper {
         }
         if (Objects.isNull(groups) || groups.isEmpty()) {
             List<ArrangeOutlineVO> items = new ArrayList<>();
-            articleInfos.reversed().forEach(e -> {
+            List<ArticleInfo> finalArticleInfos = articleInfos;
+            articleInfos.forEach(e -> {
                 ArrangeOutlineVO vo = new ArrangeOutlineVO();
                 vo.setUrl(RunConstants.runType == RunType.DEV ? e.getAlias() + (staticHtml ? ".html" :"") : e.getUrl());
                 vo.setTitle(e.getTitle());
-                vo.setActive(e.getAlias().equals(uri.replace("/","")));
+                //默认选中首条
+                if(uri.contains("sort/") && finalArticleInfos.indexOf(e) == 0){
+                    vo.setActive(true);
+                }else {
+                    vo.setActive(e.getAlias().equals(uri.replace("/", "")));
+                }
                 items.add(vo);
             });
             data.put("items", items);
