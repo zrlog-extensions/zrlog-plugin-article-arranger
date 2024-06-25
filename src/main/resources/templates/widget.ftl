@@ -85,6 +85,10 @@
         .arranger-widget > .arranger-article {
             box-shadow: 0 0 2px rgba(198, 198, 198, 0.5);
         }
+
+        .arranger-outline ul li {
+            border: 1px solid rgb(55 58 62);
+        }
     }
 
     /* Styles for smaller screens */
