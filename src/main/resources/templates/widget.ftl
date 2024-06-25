@@ -67,7 +67,7 @@
     .arranger-widget > .arranger-article {
         width: 100%;
         max-width: 884px;
-        padding: 8px;
+        padding: 8px 8px 40px 8px;
         box-shadow: 0 0 2px rgb(0 0 0 / 20%);
     }
 
