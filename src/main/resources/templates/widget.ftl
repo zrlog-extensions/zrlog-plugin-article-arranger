@@ -121,8 +121,8 @@
         .arranger-outline {
             display: block;
             position: absolute;
-            right: 0;
-            top: 44px;
+            right: 8px;
+            top: 48px;
             z-index: 1;
         }
     }
