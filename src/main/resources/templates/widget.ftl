@@ -114,6 +114,11 @@
         .arranger-outline ul li.active {
             background: #dadada;
         }
+
+        .arranger-outline ul li.active {
+            padding-left: 8px;
+        }
+
         .arranger-outline ul li {
             margin-bottom: 0;
         }
