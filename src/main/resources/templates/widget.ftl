@@ -59,6 +59,7 @@
 
     .arranger-outline ul li.active {
         border-left: 4px var(--main-color) solid;
+        padding-left: 8px;
     }
 
     .arranger-widget > .arranger-article {
@@ -113,10 +114,6 @@
 
         .arranger-outline ul li.active {
             background: #dadada;
-        }
-
-        .arranger-outline ul li.active {
-            padding-left: 8px;
         }
 
         .arranger-outline ul li {
