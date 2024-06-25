@@ -56,6 +56,7 @@
 
     .arranger-widget > .arranger-article {
         width: 100%;
+        max-width: 884px;
         padding: 8px;
         box-shadow: 0 0 2px rgb(0 0 0 / 20%);
     }
@@ -93,6 +94,7 @@
 
         .menu-list.show {
             display: block;
+            background: white;
         }
 
         .arranger-outline ul li.active {
