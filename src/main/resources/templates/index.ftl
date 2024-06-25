@@ -61,7 +61,7 @@
             <label class="col-md-3 control-label no-padding-right" for="mainColor"> 主颜色 </label>
             <div class="col-md-9">
                 <textarea  id="mainColor" type="text" placeholder="" rows="8" class="form-control"
-                           name="mainColor">${mainColor}</textarea>
+                           name="mainColor">${mainColor!'#007BFF'}</textarea>
             </div>
         </div>
         <#list groups as group>
