@@ -11,10 +11,7 @@ import com.zrlog.plugin.render.FreeMarkerRenderHandler;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class GraalvmAgentApplication {
 
@@ -41,8 +38,18 @@ public class GraalvmAgentApplication {
         plugin.setVersion("test");
         Map<String, Object> objectObjectHashMap = new HashMap<>();
         objectObjectHashMap.put("styleGlobal", "");
+        objectObjectHashMap.put("theme", "dark");
         objectObjectHashMap.put("mainColor", "");
         objectObjectHashMap.put("groups", new ArrayList<>());
+
+        List<ArrangeOutlineVO> articleInfoList = new ArrayList<>();
+        ArrangeOutlineVO articleInfo = new ArrangeOutlineVO();
+        articleInfo.setActive(false);
+        articleInfo.setUrl("/");
+        articleInfo.setTitle("test");
+        articleInfoList.add(articleInfo);
+        objectObjectHashMap.put("items",articleInfoList);
         new FreeMarkerRenderHandler().render("/templates/index.ftl", plugin, objectObjectHashMap);
+        new FreeMarkerRenderHandler().render("/templates/widget.ftl", plugin, objectObjectHashMap);
     }
 }
