@@ -61,7 +61,7 @@
             <label class="col-md-3 control-label no-padding-right" for="mainColor"> 主颜色 </label>
             <div class="col-md-4">
                 <input  id="mainColor" type="text" placeholder="" class="form-control"
-                           name="mainColor">${mainColor!'#007BFF'}</input>
+                           name="mainColor" value="${mainColor!'#007BFF'}"/>
             </div>
         </div>
         <#list groups as group>
