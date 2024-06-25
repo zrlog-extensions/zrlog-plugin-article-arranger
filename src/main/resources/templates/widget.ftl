@@ -41,7 +41,7 @@
         text-overflow: ellipsis;
         overflow: hidden;
         padding: 12px;
-        border: 1px solid #ddd;
+        border: 1px solid #f5f5f5;
         border-radius: 2px;
         transition: background-color 0.3s, transform 0.3s;
     }
