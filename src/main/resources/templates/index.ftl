@@ -59,9 +59,9 @@
         </div>
         <div class="form-group mb-3 row">
             <label class="col-md-3 control-label no-padding-right" for="mainColor"> 主颜色 </label>
-            <div class="col-md-9">
-                <textarea  id="mainColor" type="text" placeholder="" rows="8" class="form-control"
-                           name="mainColor">${mainColor!'#007BFF'}</textarea>
+            <div class="col-md-4">
+                <input  id="mainColor" type="text" placeholder="" class="form-control"
+                           name="mainColor">${mainColor!'#007BFF'}</input>
             </div>
         </div>
         <#list groups as group>

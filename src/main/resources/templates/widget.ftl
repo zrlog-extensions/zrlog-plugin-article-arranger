@@ -168,7 +168,7 @@ ${styleGlobal}
     <div class="arranger-outline">
         <ul class="menu-list">
             <#list items as item>
-                <li class="<#if item.active>active</#if>">
+                <li class="<#if item.active??>active</#if>">
                     <a href="${item.url}">${item.title}</a>
                 </li>
             </#list>
