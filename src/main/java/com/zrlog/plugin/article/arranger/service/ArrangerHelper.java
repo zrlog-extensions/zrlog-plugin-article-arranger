@@ -51,7 +51,7 @@ public class ArrangerHelper {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-        //articleInfos = articleInfos.reversed();
+        articleInfos = articleInfos.reversed();
         String logId = null;
         if(uri.contains("sort/")){
             articleInfos = articleInfos.stream().filter(e -> uri.contains(e.getTypeAlias())).collect(Collectors.toList());
