@@ -14,6 +14,7 @@
 
     .arranger-widget .arranger-article .arranger-title {
         display: flex;
+        align-items: center;
         justify-content: space-between;
     }
 
@@ -86,14 +87,12 @@
     /* Styles for smaller screens */
     @media (max-width: 600px) {
         .toggle-button {
-            display: block;
-            position: absolute;
-            right: 0;
-            top: 0;
+            display: flex;
             padding: 10px;
             background-color: var(--main-color);
             color: white;
             border: none;
+            align-items: center;
             cursor: pointer;
             border-radius: 4px;
         }
