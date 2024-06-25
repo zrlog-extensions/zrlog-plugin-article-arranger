@@ -62,7 +62,7 @@
     }
     .arranger-widget > .arranger-article > .arranger-title h2 {
         margin-top: 0;
-        margin-bottom: 8px;
+        margin-bottom: 0;
     }
     .arranger-widget > .arranger-article > .arranger-content {
 
