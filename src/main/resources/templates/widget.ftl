@@ -16,18 +16,22 @@
         display: flex;
         justify-content: space-between;
     }
+
     .arranger-widget > .arranger-outline {
         width: 240px;
     }
+
     .arranger-outline {
         width: 240px;
     }
+
     .arranger-outline ul {
         list-style: none;
         overflow: hidden;
         padding-left: 0;
         margin: 0;
     }
+
     .arranger-outline ul li {
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -38,6 +42,7 @@
         border-radius: 2px;
         transition: background-color 0.3s, transform 0.3s;
     }
+
     .arranger-outline ul li a {
         text-decoration: none;
         color: var(--main-color);
@@ -46,6 +51,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .arranger-outline ul li:hover {
         transform: translateY(-1px);
     }
@@ -60,13 +66,16 @@
         padding: 8px;
         box-shadow: 0 0 2px rgb(0 0 0 / 20%);
     }
+
     .arranger-widget > .arranger-article > .arranger-title h2 {
         margin-top: 0;
         margin-bottom: 0;
     }
+
     .arranger-widget > .arranger-article > .arranger-content {
 
     }
+
     /* Dark Mode Styles */
     @media (prefers-color-scheme: dark) {
         .arranger-widget > .arranger-article {
@@ -105,6 +114,9 @@
 
         .arranger-outline ul li.active {
             background: #dadada;
+        }
+        .arranger-outline ul li {
+            margin-bottom: 0;
         }
 
         .arranger-outline {
@@ -153,7 +165,12 @@ ${styleGlobal}
     <div class="arranger-article">
         <div class="arranger-title">
             <h2>${title!''}</h2>
-            <button class="toggle-button"><img width="20" src="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2030%2030'%3E%3Cpath%20stroke%3D'rgba(255%2C%20255%2C%20255%2C%200.55)'%20stroke-linecap%3D'round'%20stroke-miterlimit%3D'10'%20stroke-width%3D'2'%20d%3D'M4%207h22M4%2015h22M4%2023h22'%2F%3E%3C%2Fsvg%3E"></button>
+            <button class="toggle-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" style="width: 20px;display: flex;">
+                    <path stroke="rgba(255, 255, 255, 0.55)" stroke-linecap="round" stroke-miterlimit="10"
+                          stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path>
+                </svg>
+            </button>
         </div>
         <hr/>
         <div class="arranger-content markdown-body">${content!''}</div>
