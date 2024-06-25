@@ -57,6 +57,13 @@
                            name="styleGlobal">${styleGlobal}</textarea>
             </div>
         </div>
+        <div class="form-group mb-3 row">
+            <label class="col-md-3 control-label no-padding-right" for="mainColor"> 主颜色 </label>
+            <div class="col-md-9">
+                <textarea  id="mainColor" type="text" placeholder="" rows="8" class="form-control"
+                           name="mainColor">${mainColor}</textarea>
+            </div>
+        </div>
         <#list groups as group>
         <div class="form-group mb-3 row">
             <label class="col-md-3 control-label no-padding-right" > 分组（${group.name}） </label>

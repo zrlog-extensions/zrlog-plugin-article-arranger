@@ -52,13 +52,14 @@ public class ArticleArrangerController {
 
     public void widget() {
         Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", "styleGlobal,groups");
+        keyMap.put("key", "styleGlobal,groups,mainColor");
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
             String realUri = requestInfo.getUri().replace(".action","").replace(".html","");
             boolean staticHtml = requestInfo.getUri().endsWith(".html");
             Map<String,Object> data = ArrangerHelper.getWidgetData(session,realUri,staticHtml,new ArrayList<>());
             data.put("styleGlobal",Objects.requireNonNullElse(map.get("styleGlobal"),""));
+            data.put("mainColor",Objects.requireNonNullElse(map.get("mainColor"),"#007BFF"));
             session.responseHtml("/templates/widget.ftl",data, requestPacket.getMethodStr(), requestPacket.getMsgId());
         });
     }
