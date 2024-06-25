@@ -89,6 +89,10 @@
             border-radius: 4px;
         }
 
+        .arranger-outline ul li {
+            border: none;
+        }
+
         .menu-list {
             display: none;
         }
