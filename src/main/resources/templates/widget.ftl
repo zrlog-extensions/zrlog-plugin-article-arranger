@@ -30,14 +30,14 @@
         overflow: hidden;
         padding-left: 0;
         margin: 0;
+        gap: 4px;
     }
 
     .arranger-outline ul li {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        padding: 8px 12px;
-        margin-bottom: 4px;
+        padding: 12px;
         border: 1px solid #ddd;
         border-radius: 2px;
         transition: background-color 0.3s, transform 0.3s;
