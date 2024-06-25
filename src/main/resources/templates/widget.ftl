@@ -104,6 +104,11 @@
             border: none;
         }
 
+        .arranger-outline ul {
+            /*default hide*/
+            display: none;
+        }
+
         .menu-list {
             display: none;
         }
