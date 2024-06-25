@@ -86,6 +86,7 @@
             color: white;
             border: none;
             cursor: pointer;
+            border-radius: 4px;
         }
 
         .menu-list {
@@ -95,6 +96,7 @@
         .menu-list.show {
             display: block;
             background: white;
+            border-radius: 4px;
         }
 
         .arranger-outline ul li.active {
