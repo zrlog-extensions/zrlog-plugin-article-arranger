@@ -31,6 +31,8 @@
         overflow: hidden;
         padding-left: 0;
         margin: 0;
+        display: flex;
+        flex-flow: column;
         gap: 4px;
     }
 
