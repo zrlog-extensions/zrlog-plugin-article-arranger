@@ -6,7 +6,7 @@
 
     <groupId>com.zrlog</groupId>
     <artifactId>plugin-article-arranger</artifactId>
-    <version>0.0.1</version>
+    <version>3.0.31</version>
 
     <properties>
         <outputDirectory>/home/xiaochun/zrlog-plugin/</outputDirectory>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.hibegin</groupId>
             <artifactId>zrlog-plugin-freemarker-render</artifactId>
-            <version>3.0.26</version>
+            <version>3.0.31</version>
         </dependency>
     </dependencies>
 
