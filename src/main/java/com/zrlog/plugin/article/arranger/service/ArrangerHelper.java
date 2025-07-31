@@ -47,9 +47,9 @@ public class ArrangerHelper {
                 articleInfo.setAlias((String) e.get("alias"));
                 articleInfo.setTypeAlias((String) e.get("typeAlias"));
                 return articleInfo;
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            }).filter(Objects::nonNull).collect(Collectors.toList()).reversed();
 
-            articleInfos = articleInfos.reversed();
+            Collections.reverse(articleInfos);
             String logId = null;
             if (uri.contains("sort/")) {
                 articleInfos = articleInfos.stream().filter(e -> uri.contains(e.getTypeAlias())).collect(Collectors.toList());
