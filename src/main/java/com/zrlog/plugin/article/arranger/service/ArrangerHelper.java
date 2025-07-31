@@ -91,7 +91,7 @@ public class ArrangerHelper {
                 List<ArticleInfo> finalArticleInfos = articleInfos;
                 articleInfos.forEach(e -> {
                     ArrangeOutlineVO vo = new ArrangeOutlineVO();
-                    vo.setUrl(RunConstants.runType == RunType.DEV ? e.getAlias() + (staticHtml ? ".html" : "") : e.getUrl());
+                    vo.setUrl(e.getUrl());
                     vo.setTitle((finalArticleInfos.indexOf(e) + 1) + ". " + e.getTitle());
                     //默认选中首条
                     if (uri.contains("sort/") && finalArticleInfos.indexOf(e) == 0) {

@@ -9,6 +9,9 @@
     <version>3.0.31</version>
 
     <properties>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <outputDirectory>/home/xiaochun/zrlog-plugin/</outputDirectory>
         <imageName>article-arranger</imageName>
         <native.maven.plugin.version>0.10.2</native.maven.plugin.version>
