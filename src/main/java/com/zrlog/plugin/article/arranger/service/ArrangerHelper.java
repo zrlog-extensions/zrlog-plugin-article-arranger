@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class ArrangerHelper {
 
-    public static Map<String, Object> getWidgetData(IOSession session, String uri, boolean staticHtml, List<String> groups) {
+    public static Map<String, Object> getWidgetData(IOSession session, String uri, List<String> groups) {
         Map<String, Object> data = new HashMap<>();
 
         PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
@@ -88,19 +88,18 @@ public class ArrangerHelper {
             }
             if (Objects.isNull(groups) || groups.isEmpty()) {
                 List<ArrangeOutlineVO> items = new ArrayList<>();
-                List<ArticleInfo> finalArticleInfos = articleInfos;
-                articleInfos.forEach(e -> {
+                for (ArticleInfo e : articleInfos) {
                     ArrangeOutlineVO vo = new ArrangeOutlineVO();
                     vo.setUrl(e.getUrl());
-                    vo.setTitle((finalArticleInfos.indexOf(e) + 1) + ". " + e.getTitle());
+                    vo.setTitle((articleInfos.indexOf(e) + 1) + ". " + e.getTitle());
                     //默认选中首条
-                    if (uri.contains("sort/") && finalArticleInfos.indexOf(e) == 0) {
+                    if (uri.contains("sort/") && articleInfos.indexOf(e) == 0) {
                         vo.setActive(true);
                     } else {
-                        vo.setActive(e.getAlias().equals(uri.replace("/", "")));
+                        vo.setActive(e.getUrl().equals(uri));
                     }
                     items.add(vo);
-                });
+                }
                 data.put("items", items);
             }
         } catch (IOException | InterruptedException e) {

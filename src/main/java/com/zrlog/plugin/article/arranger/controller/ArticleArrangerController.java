@@ -52,9 +52,8 @@ public class ArticleArrangerController {
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
             String realUri = requestInfo.getUri().replace(".action", "").replace(".html", "");
-            boolean staticHtml = requestInfo.getUri().endsWith(".html");
             try {
-                Map<String, Object> data = ArrangerHelper.getWidgetData(session, realUri, staticHtml, new ArrayList<>());
+                Map<String, Object> data = ArrangerHelper.getWidgetData(session, realUri, new ArrayList<>());
                 if (Objects.nonNull(data)) {
                     data.put("styleGlobal", Objects.requireNonNullElse(map.get("styleGlobal"), ""));
                     data.put("mainColor", Objects.requireNonNullElse(map.get("mainColor"), "#007BFF"));
