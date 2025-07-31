@@ -48,7 +48,7 @@ public class ArrangerHelper {
                 articleInfo.setAlias((String) e.get("alias"));
                 articleInfo.setTypeAlias((String) e.get("typeAlias"));
                 return articleInfo;
-            }).filter(Objects::nonNull).collect(Collectors.toList()).reversed();
+            }).filter(Objects::nonNull).collect(Collectors.toList());
 
             Collections.reverse(articleInfos);
             String logId = null;
