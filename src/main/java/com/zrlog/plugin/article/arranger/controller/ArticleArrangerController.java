@@ -63,8 +63,7 @@ public class ArticleArrangerController {
                     session.sendMsg(ContentType.HTML, "data = null", requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
                 }
             } catch (Exception e) {
-                session.responseHtmlStr("<div></div>", requestPacket.getMethodStr(), requestPacket.getMsgId());
-                LOGGER.warning("Render widget error " + e.getMessage());
+                session.sendMsg(ContentType.HTML, e.getMessage(), requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
             }
         });
     }
