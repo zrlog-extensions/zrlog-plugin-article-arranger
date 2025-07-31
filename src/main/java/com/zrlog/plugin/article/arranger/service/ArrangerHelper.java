@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,7 @@ public class ArrangerHelper {
         PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
         List<ArticleInfo> articleInfos;
         try (HttpClient httpClient = HttpClient.newBuilder().build()) {
-            HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create(publicInfo.getApiHomeUrl() + "/api/article?size=50000")).build();
+            HttpRequest httpRequest = HttpRequest.newBuilder().timeout(Duration.ofSeconds(30)).uri(URI.create(publicInfo.getApiHomeUrl() + "/api/article?size=50000")).build();
             HttpResponse<byte[]> send;
             send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
             Map<String, Object> info = new Gson().fromJson(new String(send.body()), Map.class);
