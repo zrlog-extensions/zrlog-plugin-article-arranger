@@ -11,7 +11,10 @@ import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.type.ActionType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class ArticleArrangerController {
@@ -42,17 +45,6 @@ public class ArticleArrangerController {
         });
     }
 
-    private static Map<String, Object> getWidgetWithRetry(IOSession session, String realUri, boolean staticHtml, List<String> groups, int retryCount) throws InterruptedException {
-        try {
-            return ArrangerHelper.getWidgetData(session, realUri, staticHtml, groups);
-        } catch (Exception e) {
-            if (retryCount < 0) {
-                throw new RuntimeException(e);
-            }
-            Thread.sleep(2000);
-            return getWidgetWithRetry(session, realUri, staticHtml, groups, retryCount - 1);
-        }
-    }
 
     public void widget() {
         Map<String, Object> keyMap = new HashMap<>();
@@ -62,7 +54,7 @@ public class ArticleArrangerController {
             String realUri = requestInfo.getUri().replace(".action", "").replace(".html", "");
             boolean staticHtml = requestInfo.getUri().endsWith(".html");
             try {
-                Map<String, Object> data = getWidgetWithRetry(session, realUri, staticHtml, new ArrayList<>(), 5);
+                Map<String, Object> data = ArrangerHelper.getWidgetData(session, realUri, staticHtml, new ArrayList<>());
                 data.put("styleGlobal", Objects.requireNonNullElse(map.get("styleGlobal"), ""));
                 data.put("mainColor", Objects.requireNonNullElse(map.get("mainColor"), "#007BFF"));
                 session.responseHtml("/templates/widget.ftl", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
