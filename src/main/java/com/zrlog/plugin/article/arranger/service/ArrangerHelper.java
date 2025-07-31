@@ -31,6 +31,9 @@ public class ArrangerHelper {
             HttpRequest httpRequest = HttpRequest.newBuilder().timeout(Duration.ofSeconds(30)).uri(URI.create(publicInfo.getApiHomeUrl() + "/api/article?size=50000")).build();
             HttpResponse<byte[]> send;
             send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
+            if (send.statusCode() != 200) {
+                return null;
+            }
             Map<String, Object> info = new Gson().fromJson(new String(send.body()), Map.class);
             List<Map<String, Object>> rows = (List<Map<String, Object>>) ((Map<String, Object>) info.get("data")).get("rows");
             articleInfos = rows.stream().map(e -> {

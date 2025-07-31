@@ -55,9 +55,13 @@ public class ArticleArrangerController {
             boolean staticHtml = requestInfo.getUri().endsWith(".html");
             try {
                 Map<String, Object> data = ArrangerHelper.getWidgetData(session, realUri, staticHtml, new ArrayList<>());
-                data.put("styleGlobal", Objects.requireNonNullElse(map.get("styleGlobal"), ""));
-                data.put("mainColor", Objects.requireNonNullElse(map.get("mainColor"), "#007BFF"));
-                session.responseHtml("/templates/widget.ftl", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
+                if (Objects.nonNull(data)) {
+                    data.put("styleGlobal", Objects.requireNonNullElse(map.get("styleGlobal"), ""));
+                    data.put("mainColor", Objects.requireNonNullElse(map.get("mainColor"), "#007BFF"));
+                    session.responseHtml("/templates/widget.ftl", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
+                } else {
+                    session.sendMsg(ContentType.HTML, "data = null", requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
+                }
             } catch (Exception e) {
                 session.responseHtmlStr("<div></div>", requestPacket.getMethodStr(), requestPacket.getMsgId());
                 LOGGER.warning("Render widget error " + e.getMessage());
