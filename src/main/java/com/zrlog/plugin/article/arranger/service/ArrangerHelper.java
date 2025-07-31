@@ -26,7 +26,8 @@ public class ArrangerHelper {
 
         PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
         List<ArticleInfo> articleInfos;
-        try (HttpClient httpClient = HttpClient.newBuilder().build()) {
+        try {
+            HttpClient httpClient = HttpClient.newBuilder().build();
             HttpRequest httpRequest = HttpRequest.newBuilder().timeout(Duration.ofSeconds(30)).uri(URI.create(publicInfo.getApiHomeUrl() + "/api/article?size=50000")).build();
             HttpResponse<byte[]> send;
             send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
