@@ -2,6 +2,7 @@ package com.zrlog.plugin.article.arranger.service;
 
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
+import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
 import com.zrlog.plugin.article.arranger.vo.ArticleInfo;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
@@ -39,13 +40,7 @@ public class ArrangerHelper {
                 return null;
             }
 
-            ArticleInfo articleInfo = new ArticleInfo();
-            articleInfo.setTitle((String) e.get("title"));
-            articleInfo.setUrl((String) e.get("url"));
-            articleInfo.setAlias((String) e.get("alias"));
-            articleInfo.setTypeAlias((String) e.get("typeAlias"));
-            articleInfo.setId((int) Double.parseDouble(e.get("id") + ""));
-            return articleInfo;
+            return BeanUtils.convert(e, ArticleInfo.class);
         }).filter(Objects::nonNull).collect(Collectors.toList());
         Collections.reverse(articleInfos);
         return articleInfos;

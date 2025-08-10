@@ -3,6 +3,7 @@ package com.zrlog.plugin.article.arranger.controller;
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.article.arranger.service.ArrangerHelper;
+import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
@@ -46,10 +47,7 @@ public class ArticleArrangerController {
         });
     }
 
-    private static <T> T convert(Object obj, Class<T> tClass) {
-        String jsonStr = new Gson().toJson(obj);
-        return new Gson().fromJson(jsonStr, tClass);
-    }
+
 
     public void widget() {
         Map<String, Object> keyMap = new HashMap<>();
@@ -61,7 +59,7 @@ public class ArticleArrangerController {
                 WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, new ArrayList<>());
                 data.setStyleGlobal(Objects.requireNonNullElse((String) map.get("styleGlobal"), ""));
                 data.setMainColor(Objects.requireNonNullElse((String) map.get("mainColor"), "#007BFF"));
-                session.responseHtml("/templates/widget.ftl", convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
+                session.responseHtml("/templates/widget.ftl", BeanUtils.convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
                 session.sendMsg(ContentType.HTML, "Render widget error " + e.getMessage(), requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
             }
