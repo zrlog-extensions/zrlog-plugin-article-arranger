@@ -5,6 +5,7 @@ public class ArticleInfo {
     private String alias;
     private String typeAlias;
     private String url;
+    public Integer id;
 
     public String getTitle() {
         return title;
@@ -36,5 +37,13 @@ public class ArticleInfo {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
