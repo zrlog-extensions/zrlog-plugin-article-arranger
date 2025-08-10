@@ -44,7 +44,7 @@ public class ArrangerHelper {
             articleInfo.setUrl((String) e.get("url"));
             articleInfo.setAlias((String) e.get("alias"));
             articleInfo.setTypeAlias((String) e.get("typeAlias"));
-            articleInfo.setId(Integer.parseInt(e.get("id") + ""));
+            articleInfo.setId((int) Double.parseDouble(e.get("id") + ""));
             return articleInfo;
         }).filter(Objects::nonNull).collect(Collectors.toList());
         Collections.reverse(articleInfos);
