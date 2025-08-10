@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
 import com.zrlog.plugin.article.arranger.vo.ArticleInfo;
+import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.common.model.PublicInfo;
 import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.type.ActionType;
@@ -65,8 +66,27 @@ public class ArrangerHelper {
         return uri.contains("sort/");
     }
 
-    public static Map<String, Object> getWidgetData(IOSession session, String uri, List<String> groups) {
-        Map<String, Object> data = new HashMap<>();
+    private static List<ArrangeOutlineVO> getItems(List<String> groups, List<ArticleInfo> articleInfos, String uri) {
+        List<ArrangeOutlineVO> items = new ArrayList<>();
+        if (Objects.isNull(groups) || groups.isEmpty()) {
+            for (ArticleInfo e : articleInfos) {
+                ArrangeOutlineVO vo = new ArrangeOutlineVO();
+                vo.setUrl(e.getUrl());
+                vo.setTitle((articleInfos.indexOf(e) + 1) + ". " + e.getTitle());
+                //默认选中首条
+                if (isTypePage(uri) && articleInfos.indexOf(e) == 0) {
+                    vo.setActive(true);
+                } else {
+                    vo.setActive(e.getUrl().equals(uri));
+                }
+                items.add(vo);
+            }
+        }
+        return items;
+    }
+
+    public static WidgetDataEntry getWidgetData(IOSession session, String uri, List<String> groups) {
+        WidgetDataEntry data = new WidgetDataEntry();
         PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
         try {
             List<ArticleInfo> articleInfos = getArticles(publicInfo.getApiHomeUrl(), session);
@@ -80,32 +100,17 @@ public class ArrangerHelper {
                     articleInfos = articleInfos.stream().filter(e -> {
                         return Objects.equals(e.getTypeAlias(), log.get("typeAlias"));
                     }).collect(Collectors.toList());
-                    data.put("title", log.get("title"));
-                    data.put("content", log.get("content"));
+                    data.setTitle((String) log.get("title"));
+                    data.setContent((String) log.get("content"));
                 } else {
-                    data.put("title", "");
-                    data.put("content", "");
+                    data.setTitle("");
+                    data.setContent("");
                 }
             } else {
-                data.put("title", "");
-                data.put("content", "");
+                data.setTitle("");
+                data.setContent("");
             }
-            if (Objects.isNull(groups) || groups.isEmpty()) {
-                List<ArrangeOutlineVO> items = new ArrayList<>();
-                for (ArticleInfo e : articleInfos) {
-                    ArrangeOutlineVO vo = new ArrangeOutlineVO();
-                    vo.setUrl(e.getUrl());
-                    vo.setTitle((articleInfos.indexOf(e) + 1) + ". " + e.getTitle());
-                    //默认选中首条
-                    if (isTypePage(uri) && articleInfos.indexOf(e) == 0) {
-                        vo.setActive(true);
-                    } else {
-                        vo.setActive(e.getUrl().equals(uri));
-                    }
-                    items.add(vo);
-                }
-                data.put("items", items);
-            }
+            data.setItems(getItems(groups, articleInfos, uri));
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
