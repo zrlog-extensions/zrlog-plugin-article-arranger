@@ -3,6 +3,8 @@ package com.zrlog.plugin.article.arranger.controller;
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.article.arranger.service.ArrangerHelper;
+import com.zrlog.plugin.article.arranger.util.BeanUtils;
+import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
 import com.zrlog.plugin.data.codec.ContentType;
@@ -46,22 +48,18 @@ public class ArticleArrangerController {
     }
 
 
+
     public void widget() {
         Map<String, Object> keyMap = new HashMap<>();
         keyMap.put("key", "styleGlobal,groups,mainColor");
         session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
             Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
-            String realUri = requestInfo.getUri().replace(".action", "").replace(".html", "");
-            boolean staticHtml = requestInfo.getUri().endsWith(".html");
             try {
-                Map<String, Object> data = ArrangerHelper.getWidgetData(session, realUri, staticHtml, new ArrayList<>());
-                if (Objects.nonNull(data)) {
-                    data.put("styleGlobal", Objects.requireNonNullElse(map.get("styleGlobal"), ""));
-                    data.put("mainColor", Objects.requireNonNullElse(map.get("mainColor"), "#007BFF"));
-                    session.responseHtml("/templates/widget.ftl", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
-                } else {
-                    session.sendMsg(ContentType.HTML, "data = null", requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
-                }
+                String realUri = requestInfo.getUri().replace(".action", "").replace(".html", "");
+                WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, new ArrayList<>());
+                data.setStyleGlobal(Objects.requireNonNullElse((String) map.get("styleGlobal"), ""));
+                data.setMainColor(Objects.requireNonNullElse((String) map.get("mainColor"), "#007BFF"));
+                session.responseHtml("/templates/widget.ftl", BeanUtils.convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
                 session.sendMsg(ContentType.HTML, "Render widget error " + e.getMessage(), requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
             }
