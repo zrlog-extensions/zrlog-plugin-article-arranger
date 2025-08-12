@@ -1,35 +1,23 @@
 package com.zrlog.plugin.article.arranger.service;
 
-import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
 import com.zrlog.plugin.article.arranger.vo.ArticleInfo;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
+import com.zrlog.plugin.client.HttpClientUtils;
 import com.zrlog.plugin.common.model.PublicInfo;
 import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.type.ActionType;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArrangerHelper {
 
-    private static final HttpClient httpClient = HttpClient.newBuilder().build();
-
     private static List<ArticleInfo> getArticles(String apiHomeUrl, IOSession session) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder().timeout(Duration.ofSeconds(30)).uri(URI.create(apiHomeUrl + "/api/article?size=50000")).build();
-        HttpResponse<byte[]> send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
-        if (send.statusCode() != 200) {
-            return new ArrayList<>();
-        }
-        Map<String, Object> info = new Gson().fromJson(new String(send.body()), Map.class);
+        Map info = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/article?size=50000", Map.class, session);
         List<Map<String, Object>> rows = (List<Map<String, Object>>) ((Map<String, Object>) info.get("data")).get("rows");
         List<ArticleInfo> articleInfos = rows.stream().map(e -> {
             String renderPluginName = (String) e.get("arrange_plugin");
@@ -87,9 +75,7 @@ public class ArrangerHelper {
             List<ArticleInfo> articleInfos = getArticles(publicInfo.getApiHomeUrl(), session);
             String logId = getLogId(uri, articleInfos);
             if (Objects.nonNull(logId)) {
-                HttpRequest detailHttpRequest = HttpRequest.newBuilder().uri(URI.create(publicInfo.getApiHomeUrl() + "/api/article/detail?id=" + logId)).build();
-                HttpResponse<byte[]> detailResponse = httpClient.send(detailHttpRequest, HttpResponse.BodyHandlers.ofByteArray());
-                Map<String, Object> detailInfo = new Gson().fromJson(new String(detailResponse.body()), Map.class);
+                Map detailInfo = HttpClientUtils.sendGetRequest(publicInfo.getApiHomeUrl() + "/api/article/detail?id=" + logId, Map.class, session);
                 Map<String, Object> log = ((Map<String, Object>) detailInfo.get("data"));
                 if (Objects.nonNull(log)) {
                     articleInfos = articleInfos.stream().filter(e -> {
