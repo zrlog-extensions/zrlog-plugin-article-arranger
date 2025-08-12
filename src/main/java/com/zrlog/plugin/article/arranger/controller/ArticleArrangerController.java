@@ -35,7 +35,7 @@ public class ArticleArrangerController {
 
     public void update() {
         if (Objects.isNull(requestInfo.getUserId()) || requestInfo.getUserId() <= 0) {
-            session.responseHtml("/templates/403.ftl", new HashMap<>(), requestPacket.getMethodStr(), requestPacket.getMsgId());
+            session.responseHtml("/templates/403", new HashMap<>(), requestPacket.getMethodStr(), requestPacket.getMsgId());
             return;
         }
         session.sendMsg(new MsgPacket(requestInfo.simpleParam(), ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()), msgPacket -> {
@@ -59,7 +59,7 @@ public class ArticleArrangerController {
                 WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, new ArrayList<>());
                 data.setStyleGlobal(Objects.requireNonNullElse((String) map.get("styleGlobal"), ""));
                 data.setMainColor(Objects.requireNonNullElse((String) map.get("mainColor"), "#007BFF"));
-                session.responseHtml("/templates/widget.ftl", BeanUtils.convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
+                session.responseHtml("/templates/widget", BeanUtils.convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
                 session.sendMsg(ContentType.HTML, "Render widget error " + e.getMessage(), requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
             }
@@ -68,7 +68,7 @@ public class ArticleArrangerController {
 
     public void index() {
         if (Objects.isNull(requestInfo.getUserId()) || requestInfo.getUserId() <= 0) {
-            session.responseHtml("/templates/403.ftl", new HashMap<>(), requestPacket.getMethodStr(), requestPacket.getMsgId());
+            session.responseHtml("/templates/403", new HashMap<>(), requestPacket.getMethodStr(), requestPacket.getMsgId());
             return;
         }
         Map<String, Object> keyMap = new HashMap<>();
@@ -81,7 +81,7 @@ public class ArticleArrangerController {
                 data.put("groups", new ArrayList<>());
             }
             data.put("styleGlobal", Objects.requireNonNullElse(map.get("styleGlobal"), ""));
-            session.responseHtml("/templates/index.ftl", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
+            session.responseHtml("/templates/index", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
         });
     }
 }

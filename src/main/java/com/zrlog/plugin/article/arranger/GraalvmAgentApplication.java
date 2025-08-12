@@ -51,7 +51,7 @@ public class GraalvmAgentApplication {
         articleInfo.setTitle("test");
         articleInfoList.add(articleInfo);
         objectObjectHashMap.put("items", articleInfoList);
-        new FreeMarkerRenderHandler().render("/templates/index.ftl", plugin, objectObjectHashMap);
-        new FreeMarkerRenderHandler().render("/templates/widget.ftl", plugin, objectObjectHashMap);
+        new FreeMarkerRenderHandler().render("/templates/index", plugin, objectObjectHashMap);
+        new FreeMarkerRenderHandler().render("/templates/widget", plugin, objectObjectHashMap);
     }
 }
