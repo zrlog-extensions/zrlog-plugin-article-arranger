@@ -61,7 +61,7 @@ public class ArrangerHelper {
                 if (isTypePage(uri) && articleInfos.indexOf(e) == 0) {
                     vo.setActive(true);
                 } else {
-                    vo.setActive(e.getUrl().equals(uri));
+                    vo.setActive(e.getUrl().replaceFirst("\\.html","").equals(uri));
                 }
                 items.add(vo);
             }
