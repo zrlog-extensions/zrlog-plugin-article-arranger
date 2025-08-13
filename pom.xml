@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.hibegin</groupId>
             <artifactId>zrlog-plugin-freemarker-render</artifactId>
-            <version>3.2.12</version>
+            <version>3.2.13</version>
         </dependency>
     </dependencies>
 
