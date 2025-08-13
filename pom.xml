@@ -6,7 +6,7 @@
 
     <groupId>com.zrlog</groupId>
     <artifactId>plugin-article-arranger</artifactId>
-    <version>3.0.31</version>
+    <version>3.2.12</version>
 
     <properties>
         <java.version>11</java.version>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.hibegin</groupId>
             <artifactId>zrlog-plugin-freemarker-render</artifactId>
-            <version>3.2.11</version>
+            <version>3.2.12</version>
         </dependency>
     </dependencies>
 

@@ -11,13 +11,14 @@ import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.type.ActionType;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArrangerHelper {
 
     private static List<ArticleInfo> getArticles(String apiHomeUrl, IOSession session) throws IOException, InterruptedException {
-        Map info = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/article?size=50000", Map.class, session);
+        Map info = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/article?size=50000", Map.class, session, Duration.ofSeconds(30));
         List<Map<String, Object>> rows = (List<Map<String, Object>>) ((Map<String, Object>) info.get("data")).get("rows");
         List<ArticleInfo> articleInfos = rows.stream().map(e -> {
             String renderPluginName = (String) e.get("arrange_plugin");
@@ -75,7 +76,7 @@ public class ArrangerHelper {
             List<ArticleInfo> articleInfos = getArticles(publicInfo.getApiHomeUrl(), session);
             String logId = getLogId(uri, articleInfos);
             if (Objects.nonNull(logId)) {
-                Map detailInfo = HttpClientUtils.sendGetRequest(publicInfo.getApiHomeUrl() + "/api/article/detail?id=" + logId, Map.class, session);
+                Map detailInfo = HttpClientUtils.sendGetRequest(publicInfo.getApiHomeUrl() + "/api/article/detail?id=" + logId, Map.class, session, Duration.ofSeconds(30));
                 Map<String, Object> log = ((Map<String, Object>) detailInfo.get("data"));
                 if (Objects.nonNull(log)) {
                     articleInfos = articleInfos.stream().filter(e -> {
