@@ -7,6 +7,7 @@ import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.common.PluginNativeImageUtils;
 import com.zrlog.plugin.message.Plugin;
 import com.zrlog.plugin.render.FreeMarkerRenderHandler;
+import com.zrlog.plugin.render.SimpleTemplateRender;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class GraalvmAgentApplication {
         articleInfo.setTitle("test");
         articleInfoList.add(articleInfo);
         objectObjectHashMap.put("items", articleInfoList);
-        new FreeMarkerRenderHandler().render("/templates/index", plugin, objectObjectHashMap);
+        new SimpleTemplateRender().render("/templates/index", plugin, objectObjectHashMap);
         new FreeMarkerRenderHandler().render("/templates/widget", plugin, objectObjectHashMap);
     }
 }
