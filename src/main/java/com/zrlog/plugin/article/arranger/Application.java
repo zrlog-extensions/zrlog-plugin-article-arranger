@@ -21,7 +21,7 @@ public class Application {
     public static void main(String[] args) throws IOException {
         List<Class<?>> classList = new ArrayList<>();
         classList.add(ArticleArrangerController.class);
-        new NioClient(connectHandler, new FreeMarkerRenderHandler(), new ArticleArrangerClientActionHandler()).connectServer(args, classList, ArticleArrangerPluginAction.class);
+        new NioClient(connectHandler, new SimpleTemplateRender(), new ArticleArrangerClientActionHandler()).connectServer(args, classList, ArticleArrangerPluginAction.class);
     }
 }
 

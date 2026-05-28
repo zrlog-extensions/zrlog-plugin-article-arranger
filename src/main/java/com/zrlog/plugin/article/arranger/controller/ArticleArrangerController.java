@@ -13,6 +13,8 @@ import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
 import com.zrlog.plugin.type.ActionType;
 
+import com.zrlog.plugin.common.model.PublicInfo;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +61,7 @@ public class ArticleArrangerController {
                 WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, new ArrayList<>());
                 data.setStyleGlobal(Objects.requireNonNullElse((String) map.get("styleGlobal"), ""));
                 data.setMainColor(Objects.requireNonNullElse((String) map.get("mainColor"), "#007BFF"));
-                session.responseHtml("/templates/widget", BeanUtils.convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
+                session.responseHtml("/widget", BeanUtils.convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
                 session.sendMsg(ContentType.HTML, "Render widget error " + e.getMessage(), requestPacket.getMethodStr(), requestPacket.getMsgId(), MsgPacketStatus.RESPONSE_ERROR);
             }
@@ -67,21 +69,63 @@ public class ArticleArrangerController {
     }
 
     public void index() {
-        if (Objects.isNull(requestInfo.getUserId()) || requestInfo.getUserId() <= 0) {
-            session.responseHtml("/templates/403", new HashMap<>(), requestPacket.getMethodStr(), requestPacket.getMsgId());
-            return;
-        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("theme", isDarkMode() ? "dark" : "light");
+        data.put("data", new Gson().toJson(pageData()));
+        session.responseHtml("/templates/index", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
+    }
+
+    private Map<String, Object> pageData() {
         Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", "styleGlobal,groups");
-        session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
-            Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
-            Map<String, Object> data = new HashMap<>();
-            data.put("theme", Objects.equals(requestInfo.getHeader().get("Dark-Mode"), "true") ? "dark" : "light");
-            if (Objects.isNull(map.get("groups"))) {
-                data.put("groups", new ArrayList<>());
-            }
-            data.put("styleGlobal", Objects.requireNonNullElse(map.get("styleGlobal"), ""));
-            session.responseHtml("/templates/index", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
-        });
+        keyMap.put("key", "styleGlobal,groups,mainColor");
+        Map<String, Object> getMap = session.getResponseSync(ContentType.JSON, keyMap, ActionType.GET_WEBSITE, Map.class);
+        if (getMap == null) {
+            getMap = new HashMap<>();
+        }
+        getMap.putIfAbsent("styleGlobal", "");
+        getMap.putIfAbsent("mainColor", "#007BFF");
+        if (Objects.isNull(getMap.get("groups"))) {
+            getMap.put("groups", new ArrayList<>());
+        }
+
+        PublicInfo publicInfo = publicInfo();
+        boolean dark = publicInfo.getDarkMode() == null ? isDarkMode() : publicInfo.getDarkMode();
+        String colorPrimary = notBlank(publicInfo.getAdminColorPrimary()) ? publicInfo.getAdminColorPrimary() : "#007BFF";
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("dark", dark);
+        data.put("colorPrimary", colorPrimary);
+        data.put("plugin", session.getPlugin());
+        data.put("config", getMap);
+
+        return successMap(data);
+    }
+
+    private PublicInfo publicInfo() {
+        try {
+            PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
+            return publicInfo == null ? new PublicInfo() : publicInfo;
+        } catch (Exception e) {
+            return new PublicInfo();
+        }
+    }
+
+    private boolean isDarkMode() {
+        return requestInfo.getHeader() != null && Objects.equals(requestInfo.getHeader().get("Dark-Mode"), "true");
+    }
+
+    private boolean notBlank(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
+    private Map<String, Object> successMap(Object data) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("success", true);
+        map.put("data", data);
+        return map;
+    }
+
+    private void response(Map<String, Object> map) {
+        session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
     }
 }
