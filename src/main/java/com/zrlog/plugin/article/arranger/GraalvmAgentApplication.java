@@ -47,6 +47,6 @@ public class GraalvmAgentApplication {
         articleInfoList.add(articleInfo);
         objectObjectHashMap.put("items", articleInfoList);
         new SimpleTemplateRender().render("/templates/index", plugin, objectObjectHashMap);
-        new FreeMarkerRenderHandler().render("/templates/widget", plugin, objectObjectHashMap);
+        new FreeMarkerRenderHandler().render("/widget", plugin, objectObjectHashMap);
     }
 }
