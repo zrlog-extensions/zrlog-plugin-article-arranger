@@ -23,8 +23,6 @@ import java.util.logging.Logger;
 
 public class ArticleArrangerController {
 
-    private static final Logger LOGGER = LoggerUtil.getLogger(ArticleArrangerController.class);
-
     private final IOSession session;
     private final MsgPacket requestPacket;
     private final HttpRequestInfo requestInfo;
@@ -123,9 +121,5 @@ public class ArticleArrangerController {
         map.put("success", true);
         map.put("data", data);
         return map;
-    }
-
-    private void response(Map<String, Object> map) {
-        session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
     }
 }
