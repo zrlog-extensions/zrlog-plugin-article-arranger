@@ -98,11 +98,6 @@ public class ArticleArrangerController {
     private boolean isDarkMode() {
         return requestInfo.isDarkMode();
     }
-
-    private boolean notBlank(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
-
     private Map<String, Object> successMap(Object data) {
         Map<String, Object> map = new HashMap<>();
         map.put("success", true);
