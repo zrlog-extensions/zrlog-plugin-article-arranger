@@ -1,5 +1,7 @@
 package com.zrlog.plugin.article.arranger;
 
+import com.zrlog.plugin.RunConstants;
+import com.zrlog.plugin.type.RunType;
 import com.zrlog.plugin.article.arranger.controller.ArticleArrangerController;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
 import com.zrlog.plugin.article.arranger.vo.ArticleInfo;
@@ -17,6 +19,7 @@ public class GraalvmAgentApplication {
 
 
     public static void main(String[] args) throws IOException {
+        RunConstants.runType = RunType.AGENT;
         String basePath = System.getProperty("user.dir").replace("\\target", "").replace("/target", "");
         File file = new File(basePath + "/src/main/resources");
         PluginNativeImageUtils.doLoopResourceLoad(file.listFiles(), file.getPath() + "/", "/");
