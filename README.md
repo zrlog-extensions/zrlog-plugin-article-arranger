@@ -1,8 +1,15 @@
-## zrlog plugin article arranger
+# zrlog-plugin-article-arranger
 
-> 这是插件用于，在不改变 zrlog 大的结构的基础上，实现对一系列的文章进行合并展示（类似 gitbook），比如文档或者系列的文章
+ZrLog 文章排版插件。按配置选择文章，在前台生成带目录的文章聚合页，用于系列文章、文档页等需要按顺序浏览的内容。
 
-### 开发环境打包
+## 功能
+
+- 选择需要纳入聚合页的文章
+- 按文章分类分组展示和批量选择
+- 配置前台主色和附加 CSS
+- 只记录聚合关系，不修改文章正文
+
+## 构建
 
 ```shell
 export JAVA_HOME=${HOME}/dev/graalvm-jdk-latest

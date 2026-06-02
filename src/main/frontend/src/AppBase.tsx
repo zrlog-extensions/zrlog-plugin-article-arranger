@@ -38,14 +38,14 @@ interface AppBaseProps {
 }
 
 const PRESET_COLORS = [
-  { color: "#007BFF", label: "天际蓝" },
-  { color: "#1677ff", label: "极客蓝" },
-  { color: "#2f54eb", label: "科幻蓝" },
-  { color: "#52c41a", label: "极光绿" },
-  { color: "#faad14", label: "日出金" },
-  { color: "#f5222d", label: "薄暮红" },
-  { color: "#722ed1", label: "酱紫" },
-  { color: "#13c2c2", label: "明青" }
+  { color: "#007BFF", label: "亮蓝" },
+  { color: "#1677ff", label: "标准蓝" },
+  { color: "#2f54eb", label: "深蓝" },
+  { color: "#52c41a", label: "绿色" },
+  { color: "#faad14", label: "黄色" },
+  { color: "#f5222d", label: "红色" },
+  { color: "#722ed1", label: "紫色" },
+  { color: "#13c2c2", label: "青色" }
 ];
 
 const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
@@ -218,10 +218,10 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
 
       {/* Description Info */}
       <Alert
-        message={<Text style={{ fontWeight: 600 }}>文章排版助手使用说明</Text>}
+        message={<Text style={{ fontWeight: 600 }}>文章聚合说明</Text>}
         description={
           <Paragraph style={{ margin: 0, fontSize: 13 }}>
-            专门为系列文档或教程设计的排版插件。在下方勾选的文章将会被本插件托管展示，渲染为如 GitBook/Wiki 类似的左侧目录结构，非常适合构建个人知识库或 API 文档。
+            勾选需要聚合的文章后，插件会在前台生成带目录的文章列表页，用于系列文章、文档页等需要按顺序浏览的内容。
           </Paragraph>
         }
         type="info"
@@ -247,7 +247,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
                 title={
                   <Flex align="center" gap={8}>
                     <BgColorsOutlined style={{ color: token.colorPrimary }} />
-                    <span style={{ fontWeight: 600 }}>前台主题颜色 (Main Color)</span>
+                    <span style={{ fontWeight: 600 }}>前台主题颜色</span>
                   </Flex>
                 }
                 bordered
@@ -259,7 +259,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               >
                 <Form.Item
                   name="mainColor"
-                  tooltip="配置生成的 GitBook 风格排版的前台激活文字、侧边栏激活条和前台控件的主题主颜色。"
+                  tooltip="用于前台聚合页的激活文字、侧边栏激活条和控件主色。"
                   rules={[{ required: true, message: "主题颜色不能为空" }]}
                 >
                   <Input 
@@ -311,7 +311,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
                 title={
                   <Flex align="center" gap={8}>
                     <CodeOutlined style={{ color: token.colorPrimary }} />
-                    <span style={{ fontWeight: 600 }}>全局附加样式 (Global CSS)</span>
+                    <span style={{ fontWeight: 600 }}>全局附加样式</span>
                   </Flex>
                 }
                 bordered
@@ -323,12 +323,12 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               >
                 <Form.Item
                   name="styleGlobal"
-                  tooltip="在此配置的 CSS 样式会直接注入到排版前台页面，您可以随意覆盖主题样式。"
+                  tooltip="这里配置的 CSS 会注入到前台聚合页，可按需要覆盖 .arranger-widget 等样式。"
                   style={{ marginBottom: 0 }}
                 >
                   <Input.TextArea
                     rows={12}
-                    placeholder="/* 在此输入全局自定义的 CSS 样式代码，支持覆盖前台 .arranger-widget 等类 */\n\n.arranger-widget {\n  border-radius: 8px;\n}"
+                    placeholder="/* 输入要注入前台聚合页的 CSS */\n\n.arranger-widget {\n  border-radius: 8px;\n}"
                     style={{ 
                       fontFamily: "Fira Code, Menlo, Monaco, Consolas, Courier New, monospace",
                       fontSize: 13,
@@ -347,12 +347,12 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               title={
                 <Flex align="center" gap={8}>
                   <SettingOutlined style={{ color: token.colorPrimary }} />
-                  <span style={{ fontWeight: 600 }}>托管文章勾选管理 (Managed Articles)</span>
+                  <span style={{ fontWeight: 600 }}>聚合文章</span>
                 </Flex>
               }
               extra={
                 <Text style={{ fontSize: 13 }} type="secondary">
-                  已选择 <Text strong type="warning">{selectedIds.length}</Text> 篇托管文章
+                  已选择 <Text strong type="warning">{selectedIds.length}</Text> 篇文章
                 </Text>
               }
               bordered
@@ -366,7 +366,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               {data.config.groups.length === 0 ? (
                 <Flex vertical justify="center" align="center" style={{ minHeight: 300 }}>
                   <Text type="secondary" style={{ fontSize: 14 }}>
-                    您的博客当前暂无任何分类或文章，请先前往主站撰写文章！
+                    当前没有分类或文章，请先在主站创建文章。
                   </Text>
                 </Flex>
               ) : (
