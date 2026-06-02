@@ -51,6 +51,8 @@ const PRESET_COLORS = [
 const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
   const { token } = theme.useToken();
   const screens = Grid.useBreakpoint();
+  const isPhone = Boolean(screens.xs && !screens.sm);
+  const isCompact = !screens.lg;
   const { message } = App.useApp();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -165,7 +167,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
         width: "100%",
         maxWidth: 1240,
         margin: "0 auto",
-        padding: screens.xs ? 12 : 24,
+        padding: isPhone ? 12 : isCompact ? 16 : 24,
         boxSizing: "border-box",
       }}
     >
@@ -174,7 +176,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
         justify="space-between"
         align="flex-start"
         gap={16}
-        vertical={screens.xs}
+        vertical={isCompact}
         style={{ marginBottom: 20 }}
       >
         <div>
@@ -191,7 +193,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               <OrderedListOutlined style={{ fontSize: 24, display: "flex" }} />
             </div>
             <div>
-              <Title level={2} style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: -0.5 }}>
+              <Title level={2} style={{ margin: 0, fontSize: isPhone ? 20 : 24, fontWeight: 700, letterSpacing: 0 }}>
                 {data.plugin.name}
               </Title>
               <Text type="secondary" style={{ fontSize: 13 }}>
@@ -200,8 +202,8 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
             </div>
           </Flex>
         </div>
-        <Space wrap style={{ marginTop: screens.xs ? 12 : 0 }}>
-          <Button icon={<ReloadOutlined/>} onClick={() => refreshPage(false)} loading={loading}>
+        <Space wrap style={{ width: isPhone ? "100%" : undefined }}>
+          <Button icon={<ReloadOutlined/>} onClick={() => refreshPage(false)} loading={loading} style={isPhone ? {flex: 1} : undefined}>
             刷新数据
           </Button>
           <Button 
@@ -209,7 +211,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
             icon={<CheckCircleOutlined/>} 
             onClick={handleSave} 
             loading={saveLoading}
-            style={{ minWidth: 100 }}
+            style={isPhone ? {flex: 1} : { minWidth: 100 }}
           >
             保存配置
           </Button>
@@ -238,7 +240,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
           mainColor: data.config.mainColor
         }}
       >
-        <Row gutter={[20, 20]}>
+        <Row gutter={[isCompact ? 16 : 20, isCompact ? 16 : 20]}>
           {/* Left Column: Style Config */}
           <Col xs={24} lg={10}>
             <Space direction="vertical" size={20} style={{ width: "100%" }}>
@@ -360,7 +362,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
                 borderRadius: token.borderRadiusLG,
                 borderColor: token.colorBorderSecondary,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-                minHeight: 520
+                minHeight: isCompact ? undefined : 520
               }}
             >
               {data.config.groups.length === 0 ? (
