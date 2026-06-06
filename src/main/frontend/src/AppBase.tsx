@@ -196,9 +196,6 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               <Title level={2} style={{ margin: 0, fontSize: isPhone ? 20 : 24, fontWeight: 700, letterSpacing: 0 }}>
                 {data.plugin.name}
               </Title>
-              <Text type="secondary" style={{ fontSize: 13 }}>
-                Version {data.plugin.version} • Author: {data.plugin.author}
-              </Text>
             </div>
           </Flex>
         </div>
