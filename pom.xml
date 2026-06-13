@@ -171,6 +171,7 @@
                                     -H:+BuildReport
                                     -H:+UnlockExperimentalVMOptions
                                     --allow-incomplete-classpath
+                                    -H:-ReduceImplicitExceptionStackTraceInformation
                                     --strict-image-heap
                                     -march=compatibility
                                     --enable-preview
