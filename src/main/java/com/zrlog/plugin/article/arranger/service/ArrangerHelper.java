@@ -1,9 +1,11 @@
 package com.zrlog.plugin.article.arranger.service;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
 import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
+import com.zrlog.plugin.article.arranger.vo.ArrangerInfoResponse;
 import com.zrlog.plugin.article.arranger.vo.ArticleCategoryGroup;
 import com.zrlog.plugin.article.arranger.vo.ArticleCategoryItem;
 import com.zrlog.plugin.article.arranger.vo.ArticleDetailInfo;
@@ -14,10 +16,13 @@ import com.zrlog.plugin.article.arranger.vo.ArticleListResponse;
 import com.zrlog.plugin.article.arranger.vo.ArticleTypeInfo;
 import com.zrlog.plugin.article.arranger.vo.PublicCacheData;
 import com.zrlog.plugin.article.arranger.vo.PublicCacheResponse;
+import com.zrlog.plugin.article.arranger.vo.StandardResponse;
+import com.zrlog.plugin.article.arranger.vo.WebsiteConfigRequest;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.client.HttpClientUtils;
 import com.zrlog.plugin.common.model.PublicInfo;
 import com.zrlog.plugin.data.codec.ContentType;
+import com.zrlog.plugin.data.codec.HttpRequestInfo;
 import com.zrlog.plugin.type.ActionType;
 
 import java.io.IOException;
@@ -26,6 +31,42 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ArrangerHelper {
+
+    private static final Gson GSON = new Gson();
+
+    public static ArrangerConfig parseConfig(String dataStr) {
+        return normalizeConfig(GSON.fromJson(dataStr, ArrangerConfig.class));
+    }
+
+    public static StandardResponse<ArrangerInfoResponse> getPageData(IOSession session, HttpRequestInfo requestInfo) {
+        ArrangerConfig config = loadConfig(session);
+        config.setGroups(getArticleCategoryGroups(session, config));
+
+        ArrangerInfoResponse data = new ArrangerInfoResponse();
+        data.setDark(requestInfo.isDarkMode());
+        data.setColorPrimary(requestInfo.getAdminColorPrimary());
+        data.setPlugin(session.getPlugin());
+        data.setConfig(config);
+
+        return StandardResponse.success(data);
+    }
+
+    public static ArrangerConfig loadConfig(IOSession session) {
+        return normalizeConfig(session.getResponseSync(ContentType.JSON, WebsiteConfigRequest.arrangerKeys(), ActionType.GET_WEBSITE, ArrangerConfig.class));
+    }
+
+    private static ArrangerConfig normalizeConfig(ArrangerConfig config) {
+        if (config == null) {
+            config = new ArrangerConfig();
+        }
+        config.setStyleGlobal(Objects.requireNonNullElse(config.getStyleGlobal(), ""));
+        config.setMainColor(Objects.requireNonNullElse(config.getMainColor(), "#007BFF"));
+        return config;
+    }
+
+    public static String toActionUri(String uri) {
+        return uri.replace(".action", "").replace(".html", "");
+    }
 
     private static List<ArticleInfo> getArticles(String apiHomeUrl, IOSession session) throws IOException, InterruptedException {
         ArticleListResponse response = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/article?size=50000", ArticleListResponse.class, session, Duration.ofSeconds(30));
@@ -230,7 +271,10 @@ public class ArrangerHelper {
     }
 
     public static WidgetDataEntry getWidgetData(IOSession session, String uri, ArrangerConfig config) {
+        config = normalizeConfig(config);
         WidgetDataEntry data = new WidgetDataEntry();
+        data.setStyleGlobal(config.getStyleGlobal());
+        data.setMainColor(config.getMainColor());
         PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
         try {
             Set<String> selectedTypeIds = selectedStringSet(config.getType());

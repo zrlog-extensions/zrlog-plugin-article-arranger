@@ -6,7 +6,6 @@ import com.zrlog.plugin.RunConstants;
 import com.zrlog.plugin.article.arranger.service.ArrangerHelper;
 import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
-import com.zrlog.plugin.article.arranger.vo.ArrangerInfoResponse;
 import com.zrlog.plugin.article.arranger.vo.StandardResponse;
 import com.zrlog.plugin.article.arranger.vo.WebsiteConfigRequest;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
@@ -57,12 +56,10 @@ public class ArticleArrangerController {
 
     public void widget() {
         session.sendJsonMsg(WebsiteConfigRequest.arrangerKeys(), ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
-            ArrangerConfig config = normalizeConfig(new Gson().fromJson(msgPacket.getDataStr(), ArrangerConfig.class));
+            ArrangerConfig config = ArrangerHelper.parseConfig(msgPacket.getDataStr());
             try {
-                String realUri = requestInfo.getUri().replace(".action", "").replace(".html", "");
+                String realUri = ArrangerHelper.toActionUri(requestInfo.getUri());
                 WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, config);
-                data.setStyleGlobal(config.getStyleGlobal());
-                data.setMainColor(config.getMainColor());
                 String render = new FreeMarkerRenderHandler().render("/widget", session.getPlugin(), BeanUtils.convert(data, HashMap.class));
                 session.responseHtmlStr(render, requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
@@ -100,30 +97,8 @@ public class ArticleArrangerController {
     public void index() {
         Map<String, Object> data = new HashMap<>();
         data.put("theme", isDarkMode() ? "dark" : "light");
-        data.put("data", new Gson().toJson(pageData()));
+        data.put("data", new Gson().toJson(ArrangerHelper.getPageData(session, requestInfo)));
         session.responseHtml("/templates/index", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
-    }
-
-    private StandardResponse<ArrangerInfoResponse> pageData() {
-        ArrangerConfig config = normalizeConfig(session.getResponseSync(ContentType.JSON, WebsiteConfigRequest.arrangerKeys(), ActionType.GET_WEBSITE, ArrangerConfig.class));
-        config.setGroups(ArrangerHelper.getArticleCategoryGroups(session, config));
-
-        ArrangerInfoResponse data = new ArrangerInfoResponse();
-        data.setDark(requestInfo.isDarkMode());
-        data.setColorPrimary(requestInfo.getAdminColorPrimary());
-        data.setPlugin(session.getPlugin());
-        data.setConfig(config);
-
-        return StandardResponse.success(data);
-    }
-
-    private ArrangerConfig normalizeConfig(ArrangerConfig config) {
-        if (config == null) {
-            config = new ArrangerConfig();
-        }
-        config.setStyleGlobal(Objects.requireNonNullElse(config.getStyleGlobal(), ""));
-        config.setMainColor(Objects.requireNonNullElse(config.getMainColor(), "#007BFF"));
-        return config;
     }
 
     private boolean isDarkMode() {
