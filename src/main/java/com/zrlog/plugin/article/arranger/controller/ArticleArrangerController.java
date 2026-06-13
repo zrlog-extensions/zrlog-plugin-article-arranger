@@ -12,6 +12,7 @@ import com.zrlog.plugin.data.codec.ContentType;
 import com.zrlog.plugin.data.codec.HttpRequestInfo;
 import com.zrlog.plugin.data.codec.MsgPacket;
 import com.zrlog.plugin.data.codec.MsgPacketStatus;
+import com.zrlog.plugin.render.FreeMarkerRenderHandler;
 import com.zrlog.plugin.type.ActionType;
 import com.zrlog.plugin.type.RunType;
 
@@ -52,7 +53,6 @@ public class ArticleArrangerController {
     }
 
 
-
     public void widget() {
         Map<String, Object> keyMap = new HashMap<>();
         keyMap.put("key", "styleGlobal,groups,mainColor,type,item");
@@ -63,7 +63,8 @@ public class ArticleArrangerController {
                 WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, map);
                 data.setStyleGlobal(Objects.requireNonNullElse((String) map.get("styleGlobal"), ""));
                 data.setMainColor(Objects.requireNonNullElse((String) map.get("mainColor"), "#007BFF"));
-                session.responseHtml("/widget", BeanUtils.convert(data, HashMap.class), requestPacket.getMethodStr(), requestPacket.getMsgId());
+                String render = new FreeMarkerRenderHandler().render("/widget", session.getPlugin(), BeanUtils.convert(data, HashMap.class));
+                session.responseHtmlStr(render, requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Render widget error, uri=" + requestInfo.getUri(), e);
                 String message = renderErrorMessage(e);
@@ -128,6 +129,7 @@ public class ArticleArrangerController {
     private boolean isDarkMode() {
         return requestInfo.isDarkMode();
     }
+
     private Map<String, Object> successMap(Object data) {
         Map<String, Object> map = new HashMap<>();
         map.put("success", true);
