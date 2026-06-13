@@ -3,7 +3,8 @@ package com.zrlog.plugin.article.arranger.controller;
 import com.google.gson.Gson;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.RunConstants;
-import com.zrlog.plugin.article.arranger.service.ArrangerHelper;
+import com.zrlog.plugin.article.arranger.service.ArrangerService;
+import com.zrlog.plugin.article.arranger.util.ArrangerUtils;
 import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
 import com.zrlog.plugin.article.arranger.vo.StandardResponse;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
 public class ArticleArrangerController {
 
     private static final Logger LOGGER = LoggerUtil.getLogger(ArticleArrangerController.class);
+    private final ArrangerService arrangerService = new ArrangerService();
 
     private final IOSession session;
     private final MsgPacket requestPacket;
@@ -56,10 +58,10 @@ public class ArticleArrangerController {
 
     public void widget() {
         session.sendJsonMsg(WebsiteConfigRequest.arrangerKeys(), ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
-            ArrangerConfig config = ArrangerHelper.parseConfig(msgPacket.getDataStr());
+            ArrangerConfig config = arrangerService.parseConfig(msgPacket.getDataStr());
             try {
-                String realUri = ArrangerHelper.toActionUri(requestInfo.getUri());
-                WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, config);
+                String realUri = ArrangerUtils.toActionUri(requestInfo.getUri());
+                WidgetDataEntry data = arrangerService.getWidgetData(session, realUri, config);
                 String render = new FreeMarkerRenderHandler().render("/widget", session.getPlugin(), BeanUtils.convert(data, HashMap.class));
                 session.responseHtmlStr(render, requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
@@ -97,7 +99,7 @@ public class ArticleArrangerController {
     public void index() {
         Map<String, Object> data = new HashMap<>();
         data.put("theme", isDarkMode() ? "dark" : "light");
-        data.put("data", new Gson().toJson(ArrangerHelper.getPageData(session, requestInfo)));
+        data.put("data", new Gson().toJson(arrangerService.getPageData(session, requestInfo)));
         session.responseHtml("/templates/index", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
     }
 
