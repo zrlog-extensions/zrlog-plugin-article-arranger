@@ -22,10 +22,17 @@ export interface ArticleItem {
     id: number;
     title: string;
     arrange_plugin?: string;
+    selected?: boolean;
 }
 
 export interface CategoryGroup {
+    id?: number;
+    alias?: string;
     name: string;
+    typeName?: string;
+    typeUrl?: string;
+    arrange_plugin?: string;
+    selected?: boolean;
     items: ArticleItem[];
 }
 

@@ -58,23 +58,28 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [form] = Form.useForm();
   const mainColor = Form.useWatch("mainColor", form);
 
-  // Initialize selected article IDs
   useEffect(() => {
     if (data && data.config && data.config.groups) {
       const ids: number[] = [];
+      const categoryIds: number[] = [];
       data.config.groups.forEach((group) => {
+        if (group.id !== undefined && (group.selected || group.arrange_plugin === data.plugin.shortName)) {
+          categoryIds.push(group.id);
+        }
         if (group.items) {
           group.items.forEach((item) => {
-            if (item.arrange_plugin === data.plugin.shortName) {
+            if (item.selected || item.arrange_plugin === data.plugin.shortName) {
               ids.push(item.id);
             }
           });
         }
       });
       setSelectedIds(ids);
+      setSelectedCategoryIds(categoryIds);
     }
   }, [data]);
 
@@ -106,16 +111,22 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
     );
   };
 
-  // Toggle all articles in a category
+  const toggleDirectory = (group: CategoryGroup) => {
+    if (group.id === undefined) {
+      return;
+    }
+    setSelectedCategoryIds((prev) =>
+      prev.includes(group.id!) ? prev.filter((item) => item !== group.id) : [...prev, group.id!]
+    );
+  };
+
   const toggleCategory = (group: CategoryGroup) => {
     const groupItemIds = group.items.map(item => item.id);
     const allSelected = groupItemIds.every(id => selectedIds.includes(id));
 
     if (allSelected) {
-      // Deselect all in this category
       setSelectedIds(prev => prev.filter(id => !groupItemIds.includes(id)));
     } else {
-      // Select all in this category
       setSelectedIds(prev => {
         const otherIds = prev.filter(id => !groupItemIds.includes(id));
         return [...otherIds, ...groupItemIds];
@@ -132,8 +143,11 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
       const params = new URLSearchParams();
       params.append("styleGlobal", values.styleGlobal || "");
       params.append("mainColor", values.mainColor || "#007BFF");
+
+      selectedCategoryIds.forEach((id) => {
+        params.append("type", String(id));
+      });
       
-      // Append all checked articles
       selectedIds.forEach((id) => {
         params.append("item", String(id));
       });
@@ -220,7 +234,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
         message={<Text style={{ fontWeight: 600 }}>文章聚合说明</Text>}
         description={
           <Paragraph style={{ margin: 0, fontSize: 13 }}>
-            勾选需要聚合的文章后，插件会在前台生成带目录的文章列表页，用于系列文章、文档页等需要按顺序浏览的内容。
+            选择要接管的分类目录，并勾选目录中需要展示的文章；前台会按分类生成带目录的聚合阅读页。
           </Paragraph>
         }
         type="info"
@@ -351,7 +365,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               }
               extra={
                 <Text style={{ fontSize: 13 }} type="secondary">
-                  已选择 <Text strong type="warning">{selectedIds.length}</Text> 篇文章
+                  已接管 <Text strong type="warning">{selectedCategoryIds.length}</Text> 个目录，已选择 <Text strong type="warning">{selectedIds.length}</Text> 篇文章
                 </Text>
               }
               bordered
@@ -376,25 +390,48 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
 
                     return (
                       <Card
-                        key={group.name}
+                        key={group.id ?? group.alias ?? group.name}
                         type="inner"
                         bordered
                         title={
-                          <Flex justify="space-between" align="center" style={{ width: "100%" }}>
-                            <span style={{ fontSize: 14, fontWeight: 650 }}>
-                              分类：{group.name}
-                            </span>
-                            {group.items.length > 0 && (
-                              <Button 
-                                type="text"
-                                size="small"
-                                icon={allSelected ? <BorderOutlined /> : <CheckSquareOutlined />}
-                                onClick={() => toggleCategory(group)}
-                                style={{ fontSize: 12, padding: "0 8px" }}
-                              >
-                                {allSelected ? "取消全选" : "分类全选"}
-                              </Button>
-                            )}
+                          <Flex justify="space-between" align="center" gap={8} wrap style={{ width: "100%" }}>
+                            <Space size={8}>
+                              <Checkbox
+                                checked={group.id !== undefined && selectedCategoryIds.includes(group.id)}
+                                disabled={group.id === undefined}
+                                onChange={() => toggleDirectory(group)}
+                              />
+                              <span style={{ fontSize: 14, fontWeight: 650 }}>
+                                目录：{group.name}
+                              </span>
+                              <Text type="secondary" style={{ fontSize: 12 }}>
+                                {group.items.length} 篇
+                              </Text>
+                            </Space>
+                            <Space size={8}>
+                              {group.typeUrl && (
+                                <Button
+                                  type="link"
+                                  size="small"
+                                  href={group.typeUrl}
+                                  target="_blank"
+                                  style={{ padding: 0 }}
+                                >
+                                  查看
+                                </Button>
+                              )}
+                              {group.items.length > 0 && (
+                                <Button
+                                  type="text"
+                                  size="small"
+                                  icon={allSelected ? <BorderOutlined /> : <CheckSquareOutlined />}
+                                  onClick={() => toggleCategory(group)}
+                                  style={{ fontSize: 12, padding: "0 8px" }}
+                                >
+                                  {allSelected ? "取消文章" : "选择文章"}
+                                </Button>
+                              )}
+                            </Space>
                           </Flex>
                         }
                         style={{ 
