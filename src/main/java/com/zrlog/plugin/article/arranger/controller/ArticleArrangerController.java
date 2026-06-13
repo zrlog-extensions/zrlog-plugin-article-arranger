@@ -5,6 +5,10 @@ import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.RunConstants;
 import com.zrlog.plugin.article.arranger.service.ArrangerHelper;
 import com.zrlog.plugin.article.arranger.util.BeanUtils;
+import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
+import com.zrlog.plugin.article.arranger.vo.ArrangerInfoResponse;
+import com.zrlog.plugin.article.arranger.vo.StandardResponse;
+import com.zrlog.plugin.article.arranger.vo.WebsiteConfigRequest;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.common.IdUtil;
 import com.zrlog.plugin.common.LoggerUtil;
@@ -44,9 +48,7 @@ public class ArticleArrangerController {
             return;
         }
         session.sendMsg(new MsgPacket(requestInfo.simpleParam(), ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()), msgPacket -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("success", true);
-            session.sendMsg(new MsgPacket(map, ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
+            session.sendMsg(new MsgPacket(StandardResponse.success(Boolean.TRUE), ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
             //更新缓存
             session.sendJsonMsg(new HashMap<>(), ActionType.REFRESH_CACHE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST);
         });
@@ -54,15 +56,13 @@ public class ArticleArrangerController {
 
 
     public void widget() {
-        Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", "styleGlobal,groups,mainColor,type,item");
-        session.sendJsonMsg(keyMap, ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
-            Map map = new Gson().fromJson(msgPacket.getDataStr(), Map.class);
+        session.sendJsonMsg(WebsiteConfigRequest.arrangerKeys(), ActionType.GET_WEBSITE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST, msgPacket -> {
+            ArrangerConfig config = normalizeConfig(new Gson().fromJson(msgPacket.getDataStr(), ArrangerConfig.class));
             try {
                 String realUri = requestInfo.getUri().replace(".action", "").replace(".html", "");
-                WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, map);
-                data.setStyleGlobal(Objects.requireNonNullElse((String) map.get("styleGlobal"), ""));
-                data.setMainColor(Objects.requireNonNullElse((String) map.get("mainColor"), "#007BFF"));
+                WidgetDataEntry data = ArrangerHelper.getWidgetData(session, realUri, config);
+                data.setStyleGlobal(config.getStyleGlobal());
+                data.setMainColor(config.getMainColor());
                 String render = new FreeMarkerRenderHandler().render("/widget", session.getPlugin(), BeanUtils.convert(data, HashMap.class));
                 session.responseHtmlStr(render, requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
@@ -104,36 +104,30 @@ public class ArticleArrangerController {
         session.responseHtml("/templates/index", data, requestPacket.getMethodStr(), requestPacket.getMsgId());
     }
 
-    private Map<String, Object> pageData() {
-        Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("key", "styleGlobal,groups,mainColor,type,item");
-        Map<String, Object> getMap = session.getResponseSync(ContentType.JSON, keyMap, ActionType.GET_WEBSITE, Map.class);
-        if (getMap == null) {
-            getMap = new HashMap<>();
+    private StandardResponse<ArrangerInfoResponse> pageData() {
+        ArrangerConfig config = normalizeConfig(session.getResponseSync(ContentType.JSON, WebsiteConfigRequest.arrangerKeys(), ActionType.GET_WEBSITE, ArrangerConfig.class));
+        config.setGroups(ArrangerHelper.getArticleCategoryGroups(session, config));
+
+        ArrangerInfoResponse data = new ArrangerInfoResponse();
+        data.setDark(requestInfo.isDarkMode());
+        data.setColorPrimary(requestInfo.getAdminColorPrimary());
+        data.setPlugin(session.getPlugin());
+        data.setConfig(config);
+
+        return StandardResponse.success(data);
+    }
+
+    private ArrangerConfig normalizeConfig(ArrangerConfig config) {
+        if (config == null) {
+            config = new ArrangerConfig();
         }
-        getMap.putIfAbsent("styleGlobal", "");
-        getMap.putIfAbsent("mainColor", "#007BFF");
-        getMap.put("groups", ArrangerHelper.getAdminGroups(session, getMap));
-        boolean dark = requestInfo.isDarkMode();
-        String colorPrimary = requestInfo.getAdminColorPrimary();
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("dark", dark);
-        data.put("colorPrimary", colorPrimary);
-        data.put("plugin", session.getPlugin());
-        data.put("config", getMap);
-
-        return successMap(data);
+        config.setStyleGlobal(Objects.requireNonNullElse(config.getStyleGlobal(), ""));
+        config.setMainColor(Objects.requireNonNullElse(config.getMainColor(), "#007BFF"));
+        return config;
     }
 
     private boolean isDarkMode() {
         return requestInfo.isDarkMode();
     }
 
-    private Map<String, Object> successMap(Object data) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("success", true);
-        map.put("data", data);
-        return map;
-    }
 }

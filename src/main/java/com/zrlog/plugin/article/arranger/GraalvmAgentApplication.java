@@ -1,15 +1,30 @@
 package com.zrlog.plugin.article.arranger;
 
 import com.zrlog.plugin.RunConstants;
-import com.zrlog.plugin.type.RunType;
 import com.zrlog.plugin.article.arranger.controller.ArticleArrangerController;
+import com.zrlog.plugin.article.arranger.util.BeanUtils;
+import com.zrlog.plugin.article.arranger.vo.ApiResponse;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
+import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
+import com.zrlog.plugin.article.arranger.vo.ArrangerInfoResponse;
+import com.zrlog.plugin.article.arranger.vo.ArticleCategoryGroup;
+import com.zrlog.plugin.article.arranger.vo.ArticleCategoryItem;
+import com.zrlog.plugin.article.arranger.vo.ArticleDetailInfo;
+import com.zrlog.plugin.article.arranger.vo.ArticleDetailResponse;
 import com.zrlog.plugin.article.arranger.vo.ArticleInfo;
+import com.zrlog.plugin.article.arranger.vo.ArticleListData;
+import com.zrlog.plugin.article.arranger.vo.ArticleListResponse;
+import com.zrlog.plugin.article.arranger.vo.ArticleTypeInfo;
+import com.zrlog.plugin.article.arranger.vo.PublicCacheData;
+import com.zrlog.plugin.article.arranger.vo.PublicCacheResponse;
+import com.zrlog.plugin.article.arranger.vo.StandardResponse;
+import com.zrlog.plugin.article.arranger.vo.WebsiteConfigRequest;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.common.PluginNativeImageUtils;
 import com.zrlog.plugin.message.Plugin;
 import com.zrlog.plugin.render.FreeMarkerRenderHandler;
 import com.zrlog.plugin.render.SimpleTemplateRender;
+import com.zrlog.plugin.type.RunType;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +41,26 @@ public class GraalvmAgentApplication {
         PluginNativeImageUtils.exposeController(Collections.singletonList(ArticleArrangerController.class));
         PluginNativeImageUtils.usedGsonObject();
         freemarkerInit();
-        PluginNativeImageUtils.gsonNativeAgentByClazz(Arrays.asList(ArrangeOutlineVO.class, ArticleInfo.class, WidgetDataEntry.class));
+        PluginNativeImageUtils.gsonNativeAgentByClazz(Arrays.asList(
+                ApiResponse.class,
+                ArrangeOutlineVO.class,
+                ArrangerConfig.class,
+                ArrangerInfoResponse.class,
+                ArticleCategoryGroup.class,
+                ArticleCategoryItem.class,
+                ArticleDetailInfo.class,
+                ArticleDetailResponse.class,
+                ArticleInfo.class,
+                ArticleListData.class,
+                ArticleListResponse.class,
+                ArticleTypeInfo.class,
+                Plugin.class,
+                PublicCacheData.class,
+                PublicCacheResponse.class,
+                StandardResponse.class,
+                WebsiteConfigRequest.class,
+                WidgetDataEntry.class
+        ));
         Application.main(args);
 
     }
@@ -36,20 +70,21 @@ public class GraalvmAgentApplication {
         plugin.setName("test");
         plugin.setDesc("test");
         plugin.setVersion("test");
-        Map<String, Object> objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.put("styleGlobal", "");
-        objectObjectHashMap.put("theme", "dark");
-        objectObjectHashMap.put("mainColor", "");
-        objectObjectHashMap.put("groups", new ArrayList<>());
-
+        WidgetDataEntry widgetData = new WidgetDataEntry();
+        widgetData.setStyleGlobal("");
+        widgetData.setMainColor("");
         List<ArrangeOutlineVO> articleInfoList = new ArrayList<>();
         ArrangeOutlineVO articleInfo = new ArrangeOutlineVO();
         articleInfo.setActive(false);
         articleInfo.setUrl("/");
         articleInfo.setTitle("test");
         articleInfoList.add(articleInfo);
-        objectObjectHashMap.put("items", articleInfoList);
-        new SimpleTemplateRender().render("/templates/index", plugin, objectObjectHashMap);
-        new FreeMarkerRenderHandler().render("/widget", plugin, objectObjectHashMap);
+        widgetData.setItems(articleInfoList);
+
+        Map<String, Object> indexData = new HashMap<>();
+        indexData.put("theme", "dark");
+        indexData.put("data", "{}");
+        new SimpleTemplateRender().render("/templates/index", plugin, indexData);
+        new FreeMarkerRenderHandler().render("/widget", plugin, BeanUtils.convert(widgetData, HashMap.class));
     }
 }

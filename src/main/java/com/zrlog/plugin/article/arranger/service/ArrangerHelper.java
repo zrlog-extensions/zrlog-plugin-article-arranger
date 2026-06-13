@@ -1,9 +1,19 @@
 package com.zrlog.plugin.article.arranger.service;
 
+import com.google.gson.JsonElement;
 import com.zrlog.plugin.IOSession;
-import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
+import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
+import com.zrlog.plugin.article.arranger.vo.ArticleCategoryGroup;
+import com.zrlog.plugin.article.arranger.vo.ArticleCategoryItem;
+import com.zrlog.plugin.article.arranger.vo.ArticleDetailInfo;
+import com.zrlog.plugin.article.arranger.vo.ArticleDetailResponse;
 import com.zrlog.plugin.article.arranger.vo.ArticleInfo;
+import com.zrlog.plugin.article.arranger.vo.ArticleListData;
+import com.zrlog.plugin.article.arranger.vo.ArticleListResponse;
+import com.zrlog.plugin.article.arranger.vo.ArticleTypeInfo;
+import com.zrlog.plugin.article.arranger.vo.PublicCacheData;
+import com.zrlog.plugin.article.arranger.vo.PublicCacheResponse;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
 import com.zrlog.plugin.client.HttpClientUtils;
 import com.zrlog.plugin.common.model.PublicInfo;
@@ -18,31 +28,19 @@ import java.util.stream.Collectors;
 public class ArrangerHelper {
 
     private static List<ArticleInfo> getArticles(String apiHomeUrl, IOSession session) throws IOException, InterruptedException {
-        Map info = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/article?size=50000", Map.class, session, Duration.ofSeconds(30));
-        Object data = info.get("data");
-        if (!(data instanceof Map)) {
+        ArticleListResponse response = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/article?size=50000", ArticleListResponse.class, session, Duration.ofSeconds(30));
+        ArticleListData data = response == null ? null : response.getData();
+        if (data == null || data.getRows() == null) {
             return new ArrayList<>();
         }
-        Object rawRows = ((Map<String, Object>) data).get("rows");
-        if (!(rawRows instanceof Collection)) {
-            return new ArrayList<>();
-        }
-        List<Map<String, Object>> rows = ((Collection<?>) rawRows).stream()
-                .filter(row -> row instanceof Map)
-                .map(row -> (Map<String, Object>) row)
-                .collect(Collectors.toList());
-        List<ArticleInfo> articleInfos = rows.stream().map(e -> BeanUtils.convert(e, ArticleInfo.class)).collect(Collectors.toList());
+        List<ArticleInfo> articleInfos = new ArrayList<>(data.getRows());
         Collections.reverse(articleInfos);
         return articleInfos;
     }
 
-    private static Map<String, Object> getPublicCache(String apiHomeUrl, IOSession session) throws IOException, InterruptedException {
-        Map info = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/cache", Map.class, session, Duration.ofSeconds(30));
-        Object data = info.get("data");
-        if (data instanceof Map) {
-            return (Map<String, Object>) data;
-        }
-        return new HashMap<>();
+    private static PublicCacheData getPublicCache(String apiHomeUrl, IOSession session) throws IOException, InterruptedException {
+        PublicCacheResponse response = HttpClientUtils.sendGetRequest(apiHomeUrl + "/api/cache", PublicCacheResponse.class, session, Duration.ofSeconds(30));
+        return response == null || response.getData() == null ? new PublicCacheData() : response.getData();
     }
 
     private static String getLogId(String uri, List<ArticleInfo> articleInfos) {
@@ -67,6 +65,24 @@ public class ArrangerHelper {
         Set<String> result = new HashSet<>();
         if (Objects.isNull(value)) {
             return result;
+        }
+        if (value instanceof JsonElement) {
+            JsonElement element = (JsonElement) value;
+            if (element.isJsonNull()) {
+                return result;
+            }
+            if (element.isJsonArray()) {
+                element.getAsJsonArray().forEach(item -> {
+                    if (!item.isJsonNull()) {
+                        result.add(idString(item.getAsString()));
+                    }
+                });
+                return result;
+            }
+            if (element.isJsonPrimitive()) {
+                result.add(idString(element.getAsString()));
+                return result;
+            }
         }
         if (value instanceof Collection) {
             ((Collection<?>) value).stream().filter(Objects::nonNull).map(ArrangerHelper::idString).forEach(result::add);
@@ -105,28 +121,14 @@ public class ArrangerHelper {
         return str.trim().isEmpty() ? fallback : str;
     }
 
-    private static Integer intValue(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        }
-        if (Objects.nonNull(value)) {
-            try {
-                return (int) Double.parseDouble(String.valueOf(value));
-            } catch (NumberFormatException ignored) {
-                return null;
-            }
-        }
-        return null;
-    }
-
     private static boolean isSelectedArticle(ArticleInfo articleInfo, IOSession session, Set<String> selectedArticleIds) {
         return Objects.equals(articleInfo.getArrange_plugin(), session.getPlugin().getShortName())
                 || selectedArticleIds.contains(String.valueOf(articleInfo.getId()));
     }
 
-    private static boolean isSelectedType(Map<String, Object> type, IOSession session, Set<String> selectedTypeIds) {
-        return Objects.equals(type.get("arrange_plugin"), session.getPlugin().getShortName())
-                || selectedTypeIds.contains(String.valueOf(intValue(type.get("id"))));
+    private static boolean isSelectedType(ArticleTypeInfo type, IOSession session, Set<String> selectedTypeIds) {
+        return Objects.equals(type.getArrange_plugin(), session.getPlugin().getShortName())
+                || selectedTypeIds.contains(String.valueOf(type.getId()));
     }
 
     private static boolean isSelectedType(List<ArticleInfo> articleInfos, String typeAlias, Set<String> selectedTypeIds) {
@@ -158,47 +160,43 @@ public class ArrangerHelper {
         return items;
     }
 
-    public static List<Map<String, Object>> getAdminGroups(IOSession session, Map<String, Object> config) {
+    public static List<ArticleCategoryGroup> getArticleCategoryGroups(IOSession session, ArrangerConfig config) {
         PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
         try {
-            Set<String> selectedTypeIds = selectedStringSet(config.get("type"));
-            Set<String> selectedArticleIds = selectedStringSet(config.get("item"));
+            Set<String> selectedTypeIds = selectedStringSet(config.getType());
+            Set<String> selectedArticleIds = selectedStringSet(config.getItem());
             List<ArticleInfo> articleInfos = getArticles(publicInfo.getApiHomeUrl(), session);
             Map<String, List<ArticleInfo>> articlesByTypeAlias = articleInfos.stream()
                     .filter(e -> Objects.nonNull(e.getTypeAlias()))
                     .collect(Collectors.groupingBy(ArticleInfo::getTypeAlias, LinkedHashMap::new, Collectors.toList()));
-            List<Map<String, Object>> groups = new ArrayList<>();
-            Object rawTypes = loadTypes(publicInfo.getApiHomeUrl(), session);
-            if (rawTypes instanceof Collection) {
-                for (Object rawType : (Collection<?>) rawTypes) {
-                    if (!(rawType instanceof Map)) {
-                        continue;
-                    }
-                    Map<String, Object> type = (Map<String, Object>) rawType;
-                    String alias = stringValue(type.get("alias"), "");
-                    Map<String, Object> group = new LinkedHashMap<>();
-                    group.put("id", intValue(type.get("id")));
-                    group.put("alias", alias);
-                    group.put("name", stringValue(type.get("typeName"), alias));
-                    group.put("typeName", stringValue(type.get("typeName"), alias));
-                    group.put("typeUrl", stringValue(type.get("url"), ""));
-                    group.put("arrange_plugin", type.get("arrange_plugin"));
-                    group.put("selected", isSelectedType(type, session, selectedTypeIds));
-                    group.put("items", toAdminItems(articlesByTypeAlias.getOrDefault(alias, new ArrayList<>()), session, selectedArticleIds));
+            List<ArticleCategoryGroup> groups = new ArrayList<>();
+            List<ArticleTypeInfo> types = loadTypes(publicInfo.getApiHomeUrl(), session);
+            if (types != null) {
+                for (ArticleTypeInfo type : types) {
+                    String alias = stringValue(type.getAlias(), "");
+                    ArticleCategoryGroup group = new ArticleCategoryGroup();
+                    group.setId(type.getId());
+                    group.setAlias(alias);
+                    group.setName(stringValue(type.getTypeName(), alias));
+                    group.setTypeName(stringValue(type.getTypeName(), alias));
+                    group.setTypeUrl(stringValue(type.getUrl(), ""));
+                    group.setArrange_plugin(type.getArrange_plugin());
+                    group.setSelected(isSelectedType(type, session, selectedTypeIds));
+                    group.setItems(toArticleCategoryItems(articlesByTypeAlias.getOrDefault(alias, new ArrayList<>()), session, selectedArticleIds));
                     groups.add(group);
                 }
             }
             if (groups.isEmpty()) {
                 for (Map.Entry<String, List<ArticleInfo>> entry : articlesByTypeAlias.entrySet()) {
                     ArticleInfo first = entry.getValue().get(0);
-                    Map<String, Object> group = new LinkedHashMap<>();
-                    group.put("id", first.getTypeId());
-                    group.put("alias", entry.getKey());
-                    group.put("name", stringValue(first.getTypeName(), entry.getKey()));
-                    group.put("typeName", stringValue(first.getTypeName(), entry.getKey()));
-                    group.put("typeUrl", stringValue(first.getTypeUrl(), ""));
-                    group.put("selected", selectedTypeIds.contains(String.valueOf(first.getTypeId())));
-                    group.put("items", toAdminItems(entry.getValue(), session, selectedArticleIds));
+                    ArticleCategoryGroup group = new ArticleCategoryGroup();
+                    group.setId(first.getTypeId() == null ? null : first.getTypeId().intValue());
+                    group.setAlias(entry.getKey());
+                    group.setName(stringValue(first.getTypeName(), entry.getKey()));
+                    group.setTypeName(stringValue(first.getTypeName(), entry.getKey()));
+                    group.setTypeUrl(stringValue(first.getTypeUrl(), ""));
+                    group.setSelected(selectedTypeIds.contains(String.valueOf(first.getTypeId())));
+                    group.setItems(toArticleCategoryItems(entry.getValue(), session, selectedArticleIds));
                     groups.add(group);
                 }
             }
@@ -208,57 +206,57 @@ public class ArrangerHelper {
         }
     }
 
-    private static Object loadTypes(String apiHomeUrl, IOSession session) {
+    private static List<ArticleTypeInfo> loadTypes(String apiHomeUrl, IOSession session) {
         try {
-            return getPublicCache(apiHomeUrl, session).get("types");
+            PublicCacheData data = getPublicCache(apiHomeUrl, session);
+            return data.getTypes() == null ? new ArrayList<>() : data.getTypes();
         } catch (IOException | InterruptedException e) {
             return new ArrayList<>();
         }
     }
 
-    private static List<Map<String, Object>> toAdminItems(List<ArticleInfo> articles, IOSession session, Set<String> selectedArticleIds) {
+    private static List<ArticleCategoryItem> toArticleCategoryItems(List<ArticleInfo> articles, IOSession session, Set<String> selectedArticleIds) {
         return articles.stream().map(article -> {
-            Map<String, Object> item = new LinkedHashMap<>();
-            item.put("id", article.getId());
-            item.put("title", article.getTitle());
-            item.put("alias", article.getAlias());
-            item.put("url", article.getUrl());
-            item.put("typeAlias", article.getTypeAlias());
-            item.put("arrange_plugin", article.getArrange_plugin());
-            item.put("selected", isSelectedArticle(article, session, selectedArticleIds));
+            ArticleCategoryItem item = new ArticleCategoryItem();
+            item.setId(article.getId());
+            item.setTitle(article.getTitle());
+            item.setAlias(article.getAlias());
+            item.setUrl(article.getUrl());
+            item.setTypeAlias(article.getTypeAlias());
+            item.setArrange_plugin(article.getArrange_plugin());
+            item.setSelected(isSelectedArticle(article, session, selectedArticleIds));
             return item;
         }).collect(Collectors.toList());
     }
 
-    public static WidgetDataEntry getWidgetData(IOSession session, String uri, Map<String, Object> config) {
+    public static WidgetDataEntry getWidgetData(IOSession session, String uri, ArrangerConfig config) {
         WidgetDataEntry data = new WidgetDataEntry();
         PublicInfo publicInfo = session.getResponseSync(ContentType.JSON, new HashMap<>(), ActionType.LOAD_PUBLIC_INFO, PublicInfo.class);
         try {
-            Set<String> selectedTypeIds = selectedStringSet(config.get("type"));
-            Set<String> selectedArticleIds = selectedStringSet(config.get("item"));
+            Set<String> selectedTypeIds = selectedStringSet(config.getType());
+            Set<String> selectedArticleIds = selectedStringSet(config.getItem());
             List<ArticleInfo> articleInfos = getArticles(publicInfo.getApiHomeUrl(), session);
             String typeAlias = isTypePage(uri) ? extractTypeAlias(uri) : "";
             boolean wholeTypeSelected = isSelectedType(articleInfos, typeAlias, selectedTypeIds);
             if (isTypePage(uri)) {
                 final String selectedTypeAlias = typeAlias;
                 final boolean selectedWholeType = wholeTypeSelected;
-                List<ArticleInfo> selectedArticles = articleInfos.stream()
+                articleInfos = articleInfos.stream()
                         .filter(article -> Objects.equals(article.getTypeAlias(), selectedTypeAlias))
                         .filter(article -> selectedWholeType || isSelectedArticle(article, session, selectedArticleIds))
                         .collect(Collectors.toList());
-                articleInfos = selectedArticles;
             }
             String logId = getLogId(uri, articleInfos);
             if (Objects.nonNull(logId)) {
-                Map detailInfo = HttpClientUtils.sendGetRequest(publicInfo.getApiHomeUrl() + "/api/article/detail?id=" + logId, Map.class, session, Duration.ofSeconds(30));
-                Map<String, Object> log = ((Map<String, Object>) detailInfo.get("data"));
+                ArticleDetailResponse detailInfo = HttpClientUtils.sendGetRequest(publicInfo.getApiHomeUrl() + "/api/article/detail?id=" + logId, ArticleDetailResponse.class, session, Duration.ofSeconds(30));
+                ArticleDetailInfo log = detailInfo == null ? null : detailInfo.getData();
                 if (Objects.nonNull(log)) {
                     articleInfos = articleInfos.stream().filter(e -> {
-                        return Objects.equals(e.getTypeAlias(), log.get("typeAlias"));
+                        return Objects.equals(e.getTypeAlias(), log.getTypeAlias());
                     }).collect(Collectors.toList());
-                    typeAlias = String.valueOf(log.get("typeAlias"));
-                    data.setTitle((String) log.get("title"));
-                    data.setContent((String) log.get("content"));
+                    typeAlias = log.getTypeAlias();
+                    data.setTitle(log.getTitle());
+                    data.setContent(log.getContent());
                 } else {
                     data.setTitle("");
                     data.setContent("");
