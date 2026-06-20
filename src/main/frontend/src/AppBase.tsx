@@ -234,7 +234,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
         message={<Text style={{ fontWeight: 600 }}>文章聚合说明</Text>}
         description={
           <Paragraph style={{ margin: 0, fontSize: 13 }}>
-            选择要接管的分类目录，并勾选目录中需要展示的文章；前台会按分类生成带目录的聚合阅读页。
+            选择要接管的分类目录，并勾选目录中展示的文章；文章页会按分类生成带目录的聚合阅读页。
           </Paragraph>
         }
         type="info"
@@ -260,7 +260,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
                 title={
                   <Flex align="center" gap={8}>
                     <BgColorsOutlined style={{ color: token.colorPrimary }} />
-                    <span style={{ fontWeight: 600 }}>前台主题颜色</span>
+                    <span style={{ fontWeight: 600 }}>聚合页主题颜色</span>
                   </Flex>
                 }
                 bordered
@@ -272,7 +272,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               >
                 <Form.Item
                   name="mainColor"
-                  tooltip="用于前台聚合页的激活文字、侧边栏激活条和控件主色。"
+                  tooltip="用于文章聚合页的激活文字、侧边栏激活条和控件主色。"
                   rules={[{ required: true, message: "主题颜色不能为空" }]}
                 >
                   <Input 
@@ -336,12 +336,12 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               >
                 <Form.Item
                   name="styleGlobal"
-                  tooltip="这里配置的 CSS 会注入到前台聚合页，可按需要覆盖 .arranger-widget 等样式。"
+                  tooltip="这里的 CSS 会注入文章聚合页，可覆盖 .arranger-widget 等样式。"
                   style={{ marginBottom: 0 }}
                 >
                   <Input.TextArea
                     rows={12}
-                    placeholder="/* 输入要注入前台聚合页的 CSS */\n\n.arranger-widget {\n  border-radius: 8px;\n}"
+                    placeholder="/* 输入要注入文章聚合页的 CSS */\n\n.arranger-widget {\n  border-radius: 8px;\n}"
                     style={{ 
                       fontFamily: "Fira Code, Menlo, Monaco, Consolas, Courier New, monospace",
                       fontSize: 13,
