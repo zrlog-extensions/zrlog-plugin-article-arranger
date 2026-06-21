@@ -234,7 +234,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
         message={<Text style={{ fontWeight: 600 }}>文章聚合说明</Text>}
         description={
           <Paragraph style={{ margin: 0, fontSize: 13 }}>
-            选择要接管的分类目录，并勾选目录中展示的文章；文章页会按分类生成带目录的聚合阅读页。
+            选择要接管的分类目录，并勾选目录中展示的文章；文章页会按分类生成带目录的聚合阅读页
           </Paragraph>
         }
         type="info"
@@ -272,7 +272,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               >
                 <Form.Item
                   name="mainColor"
-                  tooltip="用于文章聚合页的激活文字、侧边栏激活条和控件主色。"
+                  tooltip="用于文章聚合页的激活文字、侧边栏激活条和控件主色"
                   rules={[{ required: true, message: "主题颜色不能为空" }]}
                 >
                   <Input 
@@ -336,7 +336,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               >
                 <Form.Item
                   name="styleGlobal"
-                  tooltip="这里的 CSS 会注入文章聚合页，可覆盖 .arranger-widget 等样式。"
+                  tooltip="这里的 CSS 会注入文章聚合页，可覆盖 .arranger-widget 等样式"
                   style={{ marginBottom: 0 }}
                 >
                   <Input.TextArea
@@ -379,7 +379,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               {data.config.groups.length === 0 ? (
                 <Flex vertical justify="center" align="center" style={{ minHeight: 300 }}>
                   <Text type="secondary" style={{ fontSize: 14 }}>
-                    当前没有分类或文章，请先在主站创建文章。
+                    当前没有分类或文章，请先在主站创建文章
                   </Text>
                 </Flex>
               ) : (
@@ -442,7 +442,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
                       >
                         {group.items.length === 0 ? (
                           <Text type="secondary" style={{ fontStyle: "italic", fontSize: 13 }}>
-                            该分类下当前无任何文章。
+                            该分类下当前无任何文章
                           </Text>
                         ) : (
                           <Row gutter={[12, 12]}>
