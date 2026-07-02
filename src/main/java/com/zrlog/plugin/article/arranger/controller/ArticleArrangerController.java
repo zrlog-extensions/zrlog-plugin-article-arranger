@@ -5,8 +5,8 @@ import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.RunConstants;
 import com.zrlog.plugin.article.arranger.service.ArrangerService;
 import com.zrlog.plugin.article.arranger.util.ArrangerUtils;
-import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
+import com.zrlog.plugin.article.arranger.vo.ArrangerUpdateRequest;
 import com.zrlog.plugin.article.arranger.vo.StandardResponse;
 import com.zrlog.plugin.article.arranger.vo.WebsiteConfigRequest;
 import com.zrlog.plugin.article.arranger.vo.WidgetDataEntry;
@@ -48,7 +48,9 @@ public class ArticleArrangerController {
             session.responseHtml("/templates/403", new HashMap<>(), requestPacket.getMethodStr(), requestPacket.getMsgId());
             return;
         }
-        session.sendMsg(new MsgPacket(requestInfo.simpleParam(), ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()), msgPacket -> {
+        ArrangerUpdateRequest request = ArrangerUpdateRequest.of(paramValue("styleGlobal"), paramValue("mainColor"),
+                paramObject("type"), paramObject("item"));
+        session.sendMsg(new MsgPacket(request, ContentType.JSON, MsgPacketStatus.SEND_REQUEST, IdUtil.getInt(), ActionType.SET_WEBSITE.name()), msgPacket -> {
             session.sendMsg(new MsgPacket(StandardResponse.success(Boolean.TRUE), ContentType.JSON, MsgPacketStatus.RESPONSE_SUCCESS, requestPacket.getMsgId(), requestPacket.getMethodStr()));
             //更新缓存
             session.sendJsonMsg(new HashMap<>(), ActionType.REFRESH_CACHE.name(), IdUtil.getInt(), MsgPacketStatus.SEND_REQUEST);
@@ -62,7 +64,7 @@ public class ArticleArrangerController {
             try {
                 String realUri = ArrangerUtils.toActionUri(requestInfo.getUri());
                 WidgetDataEntry data = arrangerService.getWidgetData(session, realUri, config);
-                String render = new FreeMarkerRenderHandler().render("/widget", session.getPlugin(), BeanUtils.convert(data, HashMap.class));
+                String render = new FreeMarkerRenderHandler().render("/widget", session.getPlugin(), data.toRenderModel());
                 session.responseHtmlStr(render, requestPacket.getMethodStr(), requestPacket.getMsgId());
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Render widget error, uri=" + requestInfo.getUri(), e);
@@ -105,6 +107,19 @@ public class ArticleArrangerController {
 
     private boolean isDarkMode() {
         return requestInfo.isDarkMode();
+    }
+
+    private Object paramObject(String key) {
+        if (requestInfo.getParam() == null || requestInfo.getParam().get(key) == null || requestInfo.getParam().get(key).length == 0) {
+            return null;
+        }
+        String[] values = requestInfo.getParam().get(key);
+        return values.length == 1 ? values[0] : values;
+    }
+
+    private String paramValue(String key) {
+        Object value = paramObject(key);
+        return value == null ? null : String.valueOf(value);
     }
 
 }

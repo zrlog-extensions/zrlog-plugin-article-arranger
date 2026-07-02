@@ -2,11 +2,11 @@ package com.zrlog.plugin.article.arranger;
 
 import com.zrlog.plugin.RunConstants;
 import com.zrlog.plugin.article.arranger.controller.ArticleArrangerController;
-import com.zrlog.plugin.article.arranger.util.BeanUtils;
 import com.zrlog.plugin.article.arranger.vo.ApiResponse;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
 import com.zrlog.plugin.article.arranger.vo.ArrangerConfig;
 import com.zrlog.plugin.article.arranger.vo.ArrangerInfoResponse;
+import com.zrlog.plugin.article.arranger.vo.ArrangerUpdateRequest;
 import com.zrlog.plugin.article.arranger.vo.ArticleCategoryGroup;
 import com.zrlog.plugin.article.arranger.vo.ArticleCategoryItem;
 import com.zrlog.plugin.article.arranger.vo.ArticleDetailInfo;
@@ -46,6 +46,7 @@ public class GraalvmAgentApplication {
                 ArrangeOutlineVO.class,
                 ArrangerConfig.class,
                 ArrangerInfoResponse.class,
+                ArrangerUpdateRequest.class,
                 ArticleCategoryGroup.class,
                 ArticleCategoryItem.class,
                 ArticleDetailInfo.class,
@@ -85,6 +86,6 @@ public class GraalvmAgentApplication {
         indexData.put("theme", "dark");
         indexData.put("data", "{}");
         new SimpleTemplateRender().render("/templates/index", plugin, indexData);
-        new FreeMarkerRenderHandler().render("/widget", plugin, BeanUtils.convert(widgetData, HashMap.class));
+        new FreeMarkerRenderHandler().render("/widget", plugin, widgetData.toRenderModel());
     }
 }

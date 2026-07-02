@@ -1,6 +1,8 @@
 package com.zrlog.plugin.article.arranger.vo;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WidgetDataEntry {
 
@@ -48,5 +50,15 @@ public class WidgetDataEntry {
 
     public void setMainColor(String mainColor) {
         this.mainColor = mainColor;
+    }
+
+    public Map<String, Object> toRenderModel() {
+        Map<String, Object> model = new HashMap<>();
+        model.put("title", title);
+        model.put("content", content);
+        model.put("items", items);
+        model.put("styleGlobal", styleGlobal);
+        model.put("mainColor", mainColor);
+        return model;
     }
 }
