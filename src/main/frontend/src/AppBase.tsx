@@ -1,32 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Form, 
-  Input, 
-  Button, 
-  Card, 
-  Space, 
+import {
+  Form,
+  Button,
+  Card,
+  Space,
   Tooltip,
-  Typography,
   Flex,
   Row,
   Col,
   Grid,
   theme,
-  App,
   Checkbox,
-  Alert
+  Alert,
 } from "antd";
-import { 
-  OrderedListOutlined, 
-  SettingOutlined, 
-  ReloadOutlined, 
-  BgColorsOutlined,
-  CodeOutlined,
-  CheckCircleOutlined,
-  BookOutlined,
-  CheckSquareOutlined,
-  BorderOutlined
-} from "@ant-design/icons";
+import {useUiApp} from "@zrlog/ui/feedback";
+import Input from "@zrlog/ui/antd/Input";
+import Typography from "@zrlog/ui/antd/Typography";
+import OrderedListIcon from "@zrlog/ui/icons/ordered-list";
+import SettingsIcon from "@zrlog/ui/icons/settings";
+import RefreshIcon from "@zrlog/ui/icons/refresh";
+import AppearanceIcon from "@zrlog/ui/icons/appearance";
+import CodeIcon from "@zrlog/ui/icons/code";
+import SuccessIcon from "@zrlog/ui/icons/success";
+import ReadIcon from "@zrlog/ui/icons/read";
+import ChecklistIcon from "@zrlog/ui/icons/checklist";
+import CropIcon from "@zrlog/ui/icons/crop";
 import axios from "axios";
 import { ArrangerInfoResponse, StandardResponse, CategoryGroup } from "./index";
 
@@ -53,7 +51,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
   const screens = Grid.useBreakpoint();
   const isPhone = Boolean(screens.xs && !screens.sm);
   const isCompact = !screens.lg;
-  const { message } = App.useApp();
+  const { message } = useUiApp();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [saveLoading, setSaveLoading] = useState<boolean>(false);
@@ -198,13 +196,13 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
             <div 
               style={{ 
                 background: `linear-gradient(135deg, ${token.colorPrimary} 0%, ${token.colorPrimaryActive} 100%)`, 
-                borderRadius: 8, 
+                borderRadius: token.borderRadius,
                 padding: "8px 10px", 
-                color: "#fff",
-                boxShadow: `0 4px 10px rgba(0, 123, 255, 0.2)`
+                color: token.colorTextLightSolid,
+                boxShadow: token.boxShadowTertiary,
               }}
             >
-              <OrderedListOutlined style={{ fontSize: 24, display: "flex" }} />
+              <OrderedListIcon style={{ fontSize: 24, display: "flex" }} />
             </div>
             <div>
               <Title level={2} style={{ margin: 0, fontSize: isPhone ? 20 : 24, fontWeight: 700, letterSpacing: 0 }}>
@@ -214,12 +212,12 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
           </Flex>
         </div>
         <Space wrap style={{ width: isPhone ? "100%" : undefined }}>
-          <Button icon={<ReloadOutlined/>} onClick={() => refreshPage(false)} loading={loading} style={isPhone ? {flex: 1} : undefined}>
+          <Button icon={<RefreshIcon/>} onClick={() => refreshPage(false)} loading={loading} style={isPhone ? {flex: 1} : undefined}>
             刷新数据
           </Button>
           <Button 
             type="primary" 
-            icon={<CheckCircleOutlined/>} 
+            icon={<SuccessIcon/>}
             onClick={handleSave} 
             loading={saveLoading}
             style={isPhone ? {flex: 1} : { minWidth: 100 }}
@@ -239,7 +237,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
         }
         type="info"
         showIcon
-        icon={<BookOutlined />}
+        icon={<ReadIcon />}
         style={{ marginBottom: 20, borderRadius: token.borderRadiusLG }}
       />
 
@@ -259,7 +257,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               <Card
                 title={
                   <Flex align="center" gap={8}>
-                    <BgColorsOutlined style={{ color: token.colorPrimary }} />
+                    <AppearanceIcon style={{ color: token.colorPrimary }} />
                     <span style={{ fontWeight: 600 }}>聚合页主题颜色</span>
                   </Flex>
                 }
@@ -323,7 +321,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
               <Card
                 title={
                   <Flex align="center" gap={8}>
-                    <CodeOutlined style={{ color: token.colorPrimary }} />
+                    <CodeIcon style={{ color: token.colorPrimary }} />
                     <span style={{ fontWeight: 600 }}>全局附加样式</span>
                   </Flex>
                 }
@@ -359,7 +357,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
             <Card
               title={
                 <Flex align="center" gap={8}>
-                  <SettingOutlined style={{ color: token.colorPrimary }} />
+                  <SettingsIcon style={{ color: token.colorPrimary }} />
                   <span style={{ fontWeight: 600 }}>聚合文章</span>
                 </Flex>
               }
@@ -424,7 +422,7 @@ const AppBase: React.FC<AppBaseProps> = ({ data, setResponse }) => {
                                 <Button
                                   type="text"
                                   size="small"
-                                  icon={allSelected ? <BorderOutlined /> : <CheckSquareOutlined />}
+                                  icon={allSelected ? <CropIcon /> : <ChecklistIcon />}
                                   onClick={() => toggleCategory(group)}
                                   style={{ fontSize: 12, padding: "0 8px" }}
                                 >

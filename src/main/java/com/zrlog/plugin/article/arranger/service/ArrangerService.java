@@ -1,6 +1,7 @@
 package com.zrlog.plugin.article.arranger.service;
 
 import com.google.gson.Gson;
+import com.zrlog.plugin.data.codec.PluginAppearance;
 import com.zrlog.plugin.IOSession;
 import com.zrlog.plugin.article.arranger.util.ArrangerUtils;
 import com.zrlog.plugin.article.arranger.vo.ArrangeOutlineVO;
@@ -51,6 +52,7 @@ public class ArrangerService {
 
         ArrangerInfoResponse data = new ArrangerInfoResponse();
         data.setDark(requestInfo.isDarkMode());
+        data.setAppearance(PluginAppearance.from(requestInfo));
         data.setColorPrimary(requestInfo.getAdminColorPrimary());
         data.setPlugin(session.getPlugin());
         data.setConfig(config);
